@@ -1,0 +1,4 @@
+interface:
+  display_name: "YouTube 콘텐츠 발행"
+  short_description: "영상과 기획서로 초안을 만들고 승인 후 YouTube 업로드와 결과를 기록합니다"
+  default_prompt: "$youtube-publish로 지정한 콘텐츠 폴더의 영상과 기획서를 확인해 제목과 설명을 제안하고, 승인 후 YouTube에 업로드해 주세요."

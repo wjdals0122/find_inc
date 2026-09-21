@@ -1,0 +1,4 @@
+interface:
+  display_name: "YouTube 댓글 답글"
+  short_description: "답글 없는 YouTube 댓글을 선별해 브랜드 말투로 답하고 결과를 기록합니다"
+  default_prompt: "$youtube-reply로 연결된 채널의 댓글을 확인하고 본인 댓글과 기존 답글이 있는 댓글을 제외한 뒤 자연스러운 한국어로 답글을 달아 주세요."

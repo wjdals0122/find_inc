@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "landing_page": "https://find-inc.web.app/",
+  "property_url": "https://find-inc.web.app/",
+  "start_date": "2026-11-10",
+  "end_date": "2026-11-16",
+  "rows": [],
+  "first_incomplete_date": null,
+  "missing_dates": [
+    "2026-11-10",
+    "2026-11-11",
+    "2026-11-12",
+    "2026-11-13",
+    "2026-11-14",
+    "2026-11-15",
+    "2026-11-16"
+  ],
+  "record": "analytics\\search-console-20261117-2.md",
+  "sql": null,
+  "timezone": "America/Los_Angeles",
+  "channel": "google-search",
+  "account_id": "https://find-inc.web.app/"
+}

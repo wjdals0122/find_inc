@@ -1,0 +1,40 @@
+{
+  "channel_id": "UC4mosYdnj9qwBjSgU8zev3w",
+  "channel_name": "큐리큐리쁑",
+  "start_date": "2026-11-10",
+  "end_date": "2026-11-16",
+  "timezone": "America/Los_Angeles",
+  "watch_time_unit": "minutes",
+  "rows": [
+    {
+      "day": "2026-11-10",
+      "views": 0,
+      "estimatedMinutesWatched": 0
+    },
+    {
+      "day": "2026-11-11",
+      "views": 0,
+      "estimatedMinutesWatched": 0
+    },
+    {
+      "day": "2026-11-12",
+      "views": 0,
+      "estimatedMinutesWatched": 0
+    },
+    {
+      "day": "2026-11-13",
+      "views": 0,
+      "estimatedMinutesWatched": 0
+    },
+    {
+      "day": "2026-11-14",
+      "views": 0,
+      "estimatedMinutesWatched": 0
+    }
+  ],
+  "missing_dates": [
+    "2026-11-15",
+    "2026-11-16"
+  ],
+  "sql": "BEGIN;\nLOCK TABLE public.channel_metrics IN SHARE ROW EXCLUSIVE MODE;\nWITH incoming(channel,account_id,metric_date,metric_name,metric_value) AS (VALUES\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-10'::date,'views',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-10'::date,'estimatedMinutesWatched',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-11'::date,'views',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-11'::date,'estimatedMinutesWatched',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-12'::date,'views',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-12'::date,'estimatedMinutesWatched',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-13'::date,'views',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-13'::date,'estimatedMinutesWatched',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-14'::date,'views',0),\n('youtube','UC4mosYdnj9qwBjSgU8zev3w','2026-11-14'::date,'estimatedMinutesWatched',0))\nINSERT INTO public.channel_metrics(channel,account_id,metric_date,metric_name,metric_value)\nSELECT i.* FROM incoming i WHERE NOT EXISTS (\n SELECT 1 FROM public.channel_metrics m WHERE m.channel=i.channel\n AND m.account_id=i.account_id AND m.metric_date=i.metric_date AND m.metric_name=i.metric_name\n);\nCOMMIT;"
+}

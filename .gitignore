@@ -16,3 +16,22 @@ firebase-debug.*.log
 
 # Content managed in Google Drive
 /02-contents/
+
+# Instagram API credentials
+/03-operation/channels/instagram/.env
+
+# YouTube OAuth credentials, tokens and local authorization state
+/03-operation/channels/youtube/.private/
+/03-operation/channels/youtube/client_secret*.json
+/03-operation/channels/youtube/token*.json
+/03-operation/channels/youtube/credentials*.json
+
+# Landing page OAuth credentials, tokens and private API responses
+/03-operation/channels/landing-page/.private/
+/03-operation/channels/landing-page/client_secret*.json
+/03-operation/channels/landing-page/token*.json
+/03-operation/channels/landing-page/credentials*.json
+
+# Local authenticated Operation data cache
+/.private/
+/dashboard/tools/happier/.generated/
