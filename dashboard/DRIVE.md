@@ -3,7 +3,7 @@
 Contents는 지정한 루트 폴더의 모든 하위 폴더와 파일을 Drive API v3로 읽는다. 폴더 이동, 전체 이름 검색, 새로고침과 이미지·영상 미리보기를 제공한다. 페이지네이션과 재귀 조회를 수행하며, Drive 바로가기는 파일로 표시하고 Drive에서 연다.
 
 - 루트: https://drive.google.com/drive/folders/1rRp5lRjKKM3KSQo3JqfHZq1J54EpovDO
-- 클라이언트: `613731739866--6ff2vv89q9v1djvphh2682jdp15u9u15.apps.googleusercontent.com`
+- 클라이언트: `613731739866-6ff2vv89q9v1djvphh2682jdp15u9u15.apps.googleusercontent.com`
 - 권한: `https://www.googleapis.com/auth/drive`. 요청한 권한을 사용하며 구현된 API 호출은 읽기만 수행한다.
 
 ## 실행과 Google 설정

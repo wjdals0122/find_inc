@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const ROOT = '1rRp5lRjKKM3KSQo3JqfHZq1J54EpovDO';
-  const CLIENT = '613731739866--6ff2vv89q9v1djvphh2682jdp15u9u15.apps.googleusercontent.com';
+  const CLIENT = '613731739866-6ff2vv89q9v1djvphh2682jdp15u9u15.apps.googleusercontent.com';
   const SCOPE = 'https://www.googleapis.com/auth/drive';
   const FOLDER = 'application/vnd.google-apps.folder';
   let token = '', expires = 0, timer, client, sdkPromise, host, files = [], current = ROOT;
