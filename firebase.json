@@ -14,8 +14,12 @@
       "tests/**",
       "AUTH.md",
       "DRIVE.md",
+      "VIRTUAL-OFFICE.md",
       "template.html",
-      "tools/**"
+      "tools/**",
+      "**/*.py",
+      "**/*.pyc",
+      "**/__pycache__/**"
     ],
     "headers": [
       {
