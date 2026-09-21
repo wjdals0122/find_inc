@@ -1,6 +1,6 @@
 // Render the light-mode FIND.INC wordmark and collected brand names as PNGs.
-// Setup: npm ci --prefix 01-strategy/dashboard/tests
-// Run: node 01-strategy/dashboard/tools/build-share-images.cjs
+// Setup: npm ci --prefix dashboard/tests
+// Run: node dashboard/tools/build-share-images.cjs
 const fs = require('node:fs');
 const path = require('node:path');
 const zlib = require('node:zlib');

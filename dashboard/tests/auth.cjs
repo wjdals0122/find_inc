@@ -4,8 +4,17 @@ const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const os = require('node:os');
-const html = fs.readFileSync(path.join(__dirname, '../dashboard.html'));
-const server = http.createServer((req,res)=>{res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end(html);});
+const root = path.resolve(__dirname, '..');
+const server = http.createServer((req,res)=>{
+  const name = new URL(req.url, 'http://localhost').pathname;
+  const file = path.resolve(root, '.' + name);
+  if (!file.startsWith(root + path.sep)) { res.writeHead(403); res.end(); return; }
+  fs.readFile(file,(err,data)=>{
+    if(err){res.writeHead(404);res.end();return;}
+    const type = file.endsWith('.js') ? 'text/javascript' : file.endsWith('.png') ? 'image/png' : file.endsWith('.svg') ? 'image/svg+xml' : 'text/html; charset=utf-8';
+    res.writeHead(200,{'Content-Type':type});res.end(data);
+  });
+});
 let base;
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'find-inc-auth-checks-'));
 const liveBackend = process.env.FIREBASE_AUTH_LIVE === '1';
@@ -54,7 +63,8 @@ async function signin(page, remember=false) {
     const live=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light'});
     if (!liveBackend) await mockedAuth(live);
     const p=await live.newPage(); p.on('pageerror',e=>errors.push(e.message));
-    await p.goto(base); await p.locator('#auth-submit:enabled').waitFor();
+    await p.goto(base); await p.waitForURL(/\/login\.html(?:#|$)/); await p.locator('#auth-submit:enabled').waitFor();
+    check('Login HTML excludes report payload', !(await p.content()).includes('id="studio-data-gzip"'));
     check('Signed-out report hidden and runtime not booted',await p.locator('#studio-dashboard').isHidden() && !await p.evaluate(()=>!!window.StudioData));
     check('All five collected logos load',await p.locator('.auth-logo-card img').evaluateAll(xs=>xs.length===5&&xs.every(x=>x.complete&&x.naturalWidth>0)));
     const before=await p.locator('.auth-orbit').first().evaluate(x=>getComputedStyle(x).transform);
@@ -89,8 +99,8 @@ async function signin(page, remember=false) {
     check('Remembered login shared in second tab',await other.locator('#studio-login').isHidden());
     await page.setViewportSize({width:390,height:844});await page.screenshot({path:dir+'/dashboard-mobile.png',fullPage:true});
     check('Logout reachable on mobile',await page.locator('#auth-logout').isVisible());
-    await page.locator('#auth-logout').click();await page.waitForFunction(()=>document.body.dataset.authState==='signed-out');
-    await other.waitForFunction(()=>document.body.dataset.authState==='signed-out');
+    await page.locator('#auth-logout').click();await page.waitForURL(/\/login\.html(?:#|$)/);await page.waitForFunction(()=>document.body.dataset.authState==='signed-out');
+    await other.waitForURL(/\/login\.html(?:#|$)/);await other.waitForFunction(()=>document.body.dataset.authState==='signed-out');
     check('Logout clears report and synchronizes other tab',await page.locator('#studio-dashboard').isHidden()&&await other.locator('#studio-dashboard').isHidden());
     await page.reload();await page.locator('#auth-submit:enabled').waitFor();
     check('Reload after logout stays locked',await page.locator('#studio-dashboard').isHidden()&&!await page.evaluate(()=>!!window.StudioData));
@@ -120,7 +130,7 @@ async function signin(page, remember=false) {
     check('Duplicate email shows an error and remains signed out',await sp.locator('#studio-dashboard').isHidden()&&(await sp.locator('#signup-status').innerText()).includes('이메일'));
     await sp.locator('#auth-switch').click();check('Switching back restores login',await sp.locator('#auth-form').isVisible()&&await sp.locator('#signup-form').isHidden());
     await registration.close();
-    const blocked=await browser.newContext();await blocked.route('https://www.gstatic.com/firebasejs/**',r=>r.abort());const bp=await blocked.newPage();await bp.goto(base);await bp.locator('#auth-retry').waitFor();
+    const blocked=await browser.newContext();await blocked.route('https://www.gstatic.com/firebasejs/**',r=>r.abort());const bp=await blocked.newPage();await bp.goto(base.replace('dashboard.html','login.html'));await bp.locator('#auth-retry').waitFor();
     check('SDK network failure stays locked with retry',await bp.locator('#studio-dashboard').isHidden()&&await bp.locator('#auth-submit').isDisabled());await blocked.close();
     check('No browser runtime errors',errors.length===0);
     fs.writeFileSync(dir+'/results.json',JSON.stringify({passed:results,errors},null,2));console.log(JSON.stringify({passed:results,errors,artifacts:dir},null,2));

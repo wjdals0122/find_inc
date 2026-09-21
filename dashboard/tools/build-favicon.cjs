@@ -1,12 +1,12 @@
 // FIND.INC monogram with the unmodified collected BMW roundel as a research badge.
-// Setup: npm ci --prefix 01-strategy/dashboard/tests
-// Run: node 01-strategy/dashboard/tools/build-favicon.cjs
+// Setup: npm ci --prefix dashboard/tests
+// Run: node dashboard/tools/build-favicon.cjs
 const fs = require('node:fs');
 const path = require('node:path');
 const { createRequire } = require('node:module');
 const { chromium } = createRequire(path.join(__dirname, '../tests/package.json'))('playwright');
 const dashboard = path.resolve(__dirname, '..');
-const root = path.resolve(dashboard, '../..');
+const root = path.resolve(dashboard, '..');
 const logo = fs.readFileSync(path.join(root, '01-strategy/brand/BMW/assets/BMW_light.svg')).toString('base64');
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
 <rect x="1" y="1" width="62" height="62" rx="16" fill="#f5f8ff" stroke="#dce5f2" stroke-width="2"/>

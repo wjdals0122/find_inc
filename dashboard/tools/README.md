@@ -23,8 +23,8 @@
 저장소 루트에서 실행한다.
 
 ```powershell
-npm ci --prefix 01-strategy/dashboard/tests
-node 01-strategy/dashboard/tools/build-share-images.cjs
+npm ci --prefix dashboard/tests
+node dashboard/tools/build-share-images.cjs
 ```
 
 Chromium이 없으면 테스트 폴더에서 `npx playwright install chromium`을 먼저 실행한다. 결과 이미지는 `assets/share/`에 저장된다. `tools/`와 `tests/`는 Firebase Hosting 배포에서 제외한다.
@@ -35,4 +35,4 @@ Chromium이 없으면 테스트 폴더에서 `npx playwright install chromium`�
 
 ## 파비콘
 
-`build-favicon.cjs`는 FIND.INC의 F에 수집한 [BMW 공식 로고 원본](../../brand/BMW/assets/README.md)을 작은 배지로 결합한다. 생성 파일은 `assets/icons/find-bmw-v1.svg`, 32px PNG, 180px 홈 화면용 PNG와 루트의 다중 크기 `favicon.ico`다. 사용한 BMW 상표의 외부 상업적 재사용 권한은 미확인이다. 썸네일 생성과 같은 Playwright 설치 후 `node 01-strategy/dashboard/tools/build-favicon.cjs`로 다시 만든다.
+`build-favicon.cjs`는 FIND.INC의 F에 수집한 [BMW 공식 로고 원본](../../brand/BMW/assets/README.md)을 작은 배지로 결합한다. 생성 파일은 `assets/icons/find-bmw-v1.svg`, 32px PNG, 180px 홈 화면용 PNG와 루트의 다중 크기 `favicon.ico`다. 사용한 BMW 상표의 외부 상업적 재사용 권한은 미확인이다. 썸네일 생성과 같은 Playwright 설치 후 `node dashboard/tools/build-favicon.cjs`로 다시 만든다.
