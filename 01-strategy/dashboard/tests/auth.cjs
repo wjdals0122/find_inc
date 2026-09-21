@@ -11,6 +11,7 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'find-inc-auth-checks-'));
 const liveBackend = process.env.FIREBASE_AUTH_LIVE === '1';
 const results = [];
 const errors = [];
+let signupRequests = 0;
 const check = (name, ok) => { assert(ok, name); results.push(name); };
 const jwt = () => {
   const now = Math.floor(Date.now()/1000);
@@ -25,6 +26,10 @@ async function mockedAuth(context) {
     if (url.includes('accounts:signInWithPassword')) {
       if (payload.password !== 'correct-test-password') { status=400; body={error:{code:400,message:'INVALID_LOGIN_CREDENTIALS'}}; }
       else body={kind:'identitytoolkit#VerifyPasswordResponse',localId:'test-ui-user',email:'ui-test@example.invalid',displayName:'UI Test',idToken:jwt(),registered:true,refreshToken:'test-refresh-token',expiresIn:'3600'};
+    } else if (url.includes('accounts:signUp')) {
+      signupRequests++;
+      if (payload.email === 'duplicate@example.invalid') { status=400; body={error:{code:400,message:'EMAIL_EXISTS'}}; }
+      else body={kind:'identitytoolkit#SignupNewUserResponse',localId:'test-ui-user',email:payload.email,idToken:jwt(),refreshToken:'test-refresh-token',expiresIn:'3600'};
     } else if (url.includes('accounts:lookup')) {
       body={users:[{localId:'test-ui-user',email:'ui-test@example.invalid',emailVerified:true,providerUserInfo:[{providerId:'password',email:'ui-test@example.invalid',rawId:'ui-test@example.invalid'}]}]};
     } else if (url.includes('accounts:sendOobCode')) body={email:payload.email};
@@ -93,6 +98,28 @@ async function signin(page, remember=false) {
     await page.waitForFunction(()=>document.querySelector('#auth-status').dataset.tone==='success');
     check('Password reset success message', (await page.locator('#auth-status').innerText()).includes('재설정 메일'));
     await ctx.close();
+    // Registration uses the real SDK against an intercepted Firebase response.
+    const registration=await browser.newContext({viewport:{width:390,height:844},colorScheme:'light'});await mockedAuth(registration);
+    const sp=await registration.newPage();sp.on('pageerror',e=>errors.push(e.message));await sp.goto(base);
+    await sp.locator('#auth-switch:enabled').waitFor();await sp.locator('#auth-switch').click();
+    check('Registration opens on first step',await sp.locator('#signup-step-1').isVisible()&&await sp.locator('#auth-form').isHidden());
+    check('Registration has no mobile horizontal overflow',await sp.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await sp.locator('#signup-email').fill('ui-test@example.invalid');await sp.locator('#signup-password').fill('correct-test-password');await sp.locator('#signup-next').click();
+    check('Registration advances to confirmation',await sp.locator('#signup-step-2').isVisible()&&await sp.locator('#signup-progress-2').getAttribute('aria-current')==='step');
+    await sp.locator('#signup-confirm').fill('mismatch-test-password');await sp.locator('#signup-submit').click();
+    check('Mismatched passwords do not create an account',signupRequests===0&&(await sp.locator('#signup-status').innerText()).includes('일치하지'));
+    await sp.locator('#signup-back').click();check('Back returns to account details',await sp.locator('#signup-step-1').isVisible());
+    await sp.locator('#signup-next').click();await sp.locator('#signup-confirm').fill('correct-test-password');await sp.locator('#signup-submit').click();
+    await sp.waitForFunction(()=>document.body.dataset.authState==='authenticated');
+    check('Completed registration opens dashboard',signupRequests===1&&await sp.locator('#studio-login').isHidden());
+    await sp.locator('#auth-logout').click();await sp.waitForFunction(()=>document.body.dataset.authState==='signed-out');
+    await signin(sp);check('Registered user can log in after logout',await sp.locator('#studio-login').isHidden());
+    await sp.locator('#auth-logout').click();await sp.waitForFunction(()=>document.body.dataset.authState==='signed-out');
+    await sp.locator('#auth-switch:enabled').click();await sp.locator('#signup-email').fill('duplicate@example.invalid');await sp.locator('#signup-password').fill('correct-test-password');await sp.locator('#signup-next').click();await sp.locator('#signup-confirm').fill('correct-test-password');await sp.locator('#signup-submit').click();
+    await sp.waitForFunction(()=>document.querySelector('#signup-status').dataset.tone==='error');
+    check('Duplicate email shows an error and remains signed out',await sp.locator('#studio-dashboard').isHidden()&&(await sp.locator('#signup-status').innerText()).includes('이메일'));
+    await sp.locator('#auth-switch').click();check('Switching back restores login',await sp.locator('#auth-form').isVisible()&&await sp.locator('#signup-form').isHidden());
+    await registration.close();
     const blocked=await browser.newContext();await blocked.route('https://www.gstatic.com/firebasejs/**',r=>r.abort());const bp=await blocked.newPage();await bp.goto(base);await bp.locator('#auth-retry').waitFor();
     check('SDK network failure stays locked with retry',await bp.locator('#studio-dashboard').isHidden()&&await bp.locator('#auth-submit').isDisabled());await blocked.close();
     check('No browser runtime errors',errors.length===0);

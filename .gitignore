@@ -8,3 +8,11 @@ __pycache__/
 node_modules/
 .DS_Store
 Thumbs.db
+firebase-debug.log
+firebase-debug.*.log
+
+# Firebase local deployment state
+.firebase/
+
+# Content managed in Google Drive
+/02-contents/

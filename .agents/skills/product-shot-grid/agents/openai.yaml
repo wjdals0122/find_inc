@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product Shot Grid"
+  short_description: "Create a 3x3 product photography grid"
+  default_prompt: "Use $product-shot-grid to create a 3x3 product shot grid from the product references and brief."

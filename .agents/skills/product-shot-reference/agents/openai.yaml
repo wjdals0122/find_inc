@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product Shot Reference"
+  short_description: "제품 연출 레퍼런스 수집부터 조합 생성과 피드백 리뷰까지"
+  default_prompt: "Use $product-shot-reference to find and save visual references, combine them with my product images into styled product shots, and review and revise the results using my feedback."
