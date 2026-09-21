@@ -34,3 +34,7 @@ Habblaud의 MIT 아트 모듈을 번들링해 가구·캐릭터·포즈·바닥�
 ## AI 회의실
 
 상단 `AI 회의 열기`로 주제를 입력해 회의를 연다. 팀별 에이전트가 4F에 모이고, 실제 Codex 회의 발언(`@@팀:` 형식 줄)만 말풍선으로 표시한다. 대표 채팅은 Happier 세션에 암호화해 전달한다. `회의 마치기`를 누르면 팀장이 `docs/meetings/`에 정리본을 쓰고 main에 push한다. 테스트: `node dashboard/tests/ai-meeting.cjs`. 결정 기록: `docs/decisions/2026-11-18-ai-meeting-room.md`.
+
+## 5F 대강당 · AI 품평회
+
+5F 대강당에 처음 들어가면 설정 팝업에서 발표 주제, 산출물(마케팅 브리핑·광고 이미지·영상), 평가 에이전트 수, 에이전트별 관점·모델·Effort를 고른다. 에이전트마다 별도 Codex 세션이 발표 → 관점별 피드백 → 답변 순서로 실행된다. 대강당 화면에 산출물을 띄우고, 대표 채팅으로 참여한다. `세션 종료`를 누르면 `docs/reviews/`에 정리한다. 테스트: `node dashboard/tests/ai-review.cjs`. 결정 기록: `docs/decisions/2026-11-18-ai-review-hall.md`.

@@ -1,0 +1,119 @@
+{
+  "skills": [
+    {
+      "id": "brand",
+      "label": "브랜드 조사",
+      "description": "Research a brand from official identity sources and supplied materials, reconcile existing brand files, and produce sourced brand and design system documents with available assets."
+    },
+    {
+      "id": "channel-metrics",
+      "label": "채널 성과 통합",
+      "description": "Instagram, YouTube, Google Search Console의 최근 7일 또는 지정 기간 성과를 한 번의 요청으로 수집한다. 기존 youtube-metrics와 google-search-metrics 스킬을 활용하고, 요청에 따라 Supabase channel_metrics에 중복 없이 저장해 채널별 결과를 통합 보고한다."
+    },
+    {
+      "id": "competitive-ads-extractor",
+      "label": "경쟁 광고 분석",
+      "description": "경쟁사의 광고 라이브러리를 조사해 광고 소재와 원본을 수집하고 메시지·구성·CTA를 분석한다. Meta 광고의 활성 상태와 이미지 확인에도 사용한다."
+    },
+    {
+      "id": "competitor",
+      "label": "경쟁 분석",
+      "description": "자사 상품의 경쟁 상품과 대체재를 찾고, 조사 사이트·근거·동등 조건 비교·추천 고객을 정리하거나 기존 경쟁 분석을 수정한다."
+    },
+    {
+      "id": "crawler",
+      "label": "자료 수집",
+      "description": "상품·브랜드·주제의 웹 자료, 공식 정보, 영상, 게시물과 댓글을 조사하고 원문·출처·수집 시간을 저장한다. 기존 자료를 재사용하고 Bright Data, Apify, watch의 Gemini 엔진으로 예산 내에서 근거를 수집할 때 사용한다."
+    },
+    {
+      "id": "customer-needs",
+      "label": "고객 니즈",
+      "description": "고객이 해결하려는 불편과 상품에서 원하는 결과를 발언에 근거해 분석한다."
+    },
+    {
+      "id": "purchase-concerns",
+      "label": "구매 우려",
+      "description": "고객이 구매를 망설이는 이유와 상품·계약에 관해 묻는 조건을 조사한다."
+    },
+    {
+      "id": "customer",
+      "label": "고객 조사",
+      "description": "고객의 사용 상황, 니즈, 사용 경험과 구매 전 우려를 자료 수집부터 근거 분석과 보고서 수정까지 조사한다."
+    },
+    {
+      "id": "use-context",
+      "label": "사용 상황",
+      "description": "고객이 상품을 언제 어디서 어떤 목적으로 쓰거나 쓰려는지 조사한다."
+    },
+    {
+      "id": "user-experience",
+      "label": "사용 경험",
+      "description": "실제 사용, 시승 또는 체험에서 나온 상품의 장점과 불편을 조사한다."
+    },
+    {
+      "id": "google-search-metrics",
+      "label": "검색 성과",
+      "description": "기존 랜딩 페이지의 Google Search Console 연결로 날짜별 노출수와 클릭수를 수집하고, 요청에 따라 Supabase channel_metrics에 중복 없이 저장하고 검증한다. 최근 7일 또는 지정 기간의 검색 성과 수집에 사용한다."
+    },
+    {
+      "id": "marketing-brief",
+      "label": "마케팅 브리프",
+      "description": "기존 브랜드·상품·경쟁·고객 조사로 서로 다른 구매 이유의 마케팅 메시지를 제안하고, 채널별 콘텐츠 구성과 제작 가이드를 브리프로 작성하거나 수정한다."
+    },
+    {
+      "id": "natural-korean",
+      "label": "한국어 글 교정",
+      "description": "한국어 글에서 AI가 쓴 흔적을 찾아 사람이 쓴 것처럼 고쳐 쓴다. 의미는 바꾸지 않는다. 번역투, AI 상투어, 과한 명사화와 피동, 3의 법칙, 과장된 의의 부여, 마무리 상투구, 챗봇 잔재, 줄표와 곡선 따옴표를 찾아 심각도를 S1, S2, S3으로 나눈다."
+    },
+    {
+      "id": "product",
+      "label": "상품 조사",
+      "description": "상품·서비스를 조사할 사이트를 찾고, 공식 정보·가격·사용 조건·실사용 후기·장점의 근거를 product.md와 에셋으로 정리하거나 피드백에 맞춰 수정한다. 사이트 후보만 요청하면 탐색까지만 진행한다."
+    },
+    {
+      "id": "product-shot",
+      "label": "제품 연출 컷",
+      "description": "제품 이미지와 브리프에서 제품 컷 그리드를 만들고, 이어서 연출 레퍼런스를 수집·조합해 개별 제품 연출 컷을 제작한다. product-shot-grid와 product-shot-reference를 순서대로 활용하며 사용자 피드백에 따라 리뷰·수정한다."
+    },
+    {
+      "id": "product-shot-grid",
+      "label": "제품 컷 그리드",
+      "description": "제품 참고 이미지와 마케팅 브리프를 바탕으로 여러 각도와 디테일을 한 장의 3×3 제품 연출 컷으로 생성하거나, 새 참고 자료로 기존 컷을 수정한다."
+    },
+    {
+      "id": "product-shot-reference",
+      "label": "연출 레퍼런스 컷",
+      "description": "상품·브리프에 맞는 제품 연출 레퍼런스를 찾아 저장하고, 제품 이미지의 각도·디테일과 조합해 여러 연출 컷을 생성한다. 사용자 피드백에 따른 결과 리뷰와 부분 수정에도 사용한다."
+    },
+    {
+      "id": "remember",
+      "label": "프로젝트 규칙 기록",
+      "description": "Store a user's durable project rules in the relevant guide and link them from AGENTS.md when they ask you to remember rules for future work."
+    },
+    {
+      "id": "strategy-dashboard",
+      "label": "전략 대시보드",
+      "description": "브랜드·상품 전략 문서로 dashboard.html의 디자인·기능과 기존 상품을 보존하며 리포트를 추가·갱신하고, 요청하면 ChatGPT Sites에 소유자 전용으로 배포한다."
+    },
+    {
+      "id": "watch",
+      "label": "영상 분석",
+      "description": "Watch a video (URL or local path). Downloads with yt-dlp, extracts auto-scaled frames with ffmpeg, pulls the transcript from captions (or local WhisperX / cloud Whisper fallback), and hands the result to the agent so it can answer questions about what's in the video. With a Gemini API key, Google's agentic video model watches the full video instead."
+    },
+    {
+      "id": "youtube-metrics",
+      "label": "YouTube 성과",
+      "description": "기존 YouTube 연결로 날짜별 조회수와 시청 시간을 수집하고, 요청에 따라 Supabase channel_metrics에 중복 없이 저장하고 검증한다. 최근 7일 또는 지정 기간의 유튜브 성과 수집에 사용한다."
+    },
+    {
+      "id": "youtube-publish",
+      "label": "YouTube 발행",
+      "description": "콘텐츠 영상과 기획서로 YouTube 제목과 설명을 제안하고 승인 후 업로드와 결과 기록을 진행한다. 기존 영상의 설명, 시간 표시와 공개 범위 수정에도 사용하며 댓글 답글 작업은 별도로 처리한다."
+    },
+    {
+      "id": "youtube-reply",
+      "label": "YouTube 댓글 답글",
+      "description": "연결된 YouTube 채널 영상의 댓글을 조회해 본인 댓글, 기존 답글이 있는 댓글과 확인할 수 없는 댓글을 제외하고 브랜드 자료와 natural-korean 기준으로 답글을 작성한다. 사용자 요청에 따라 답글을 등록하고 처리 결과를 기록할 때 사용한다."
+    }
+  ]
+}

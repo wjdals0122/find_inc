@@ -1,0 +1,20 @@
+{
+  "secret": "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=",
+  "public": "B6N8vBQgk8i3VdwbEOhstCY3StFqqFPtC9/AsrhtHHw=",
+  "contentKey": "ISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0A=",
+  "dataKey": "QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVpbXF1eX2A=",
+  "pairingSecret": "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXp7fH1+f4A=",
+  "createdAt": 1795100000000,
+  "expiresAt": 1795100600000,
+  "approval": "SFBWM5zMIJYTWgfBGiFErdHLQjHlT5NPk3gke8fQ57duWnZ0mpucnZ6foKGio6SlpqeoqaqrrK2ur7Cxpe6/4kNBcXMl22wcaHMD2QRXI+NBfMl9WWArQ0g0F7LB/L2dba7MIuKQwR0PLmA2G5ZdudR4YxpVXtN3SRtchTNr+xu7Gcbc1dX+YutI8QTL",
+  "envelope": "AK1Di/rjH2wJPWHUM5JV6nmAksn63Qe5eCf0sK6d7nwcqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/GzPVJ8BwVLP3QMMc8of8oV86ahUhJe6/8I+yPSUBknxFlZcqbdMI+AidgLhMyIA6",
+  "seedEnvelope": "ABhsW93BT7v3Fo1IRRpgYpR/Bh0fK64sXqrH5CSTFnZgtre4ubq7vL2+v8DBwsPExcbHyMnKy8zNQqwJfMVVLBoWMUH9VNo4U3zPehTEnrIZsDp0QSmEqb5zhLvbN2U80oCODcbNgIrR",
+  "ciphertext": "ABQVFhcYGRobHB0eH3pS9KrHdIzeRLgkDmcSdqwJd7lwwnQ87M9bhXSHkWz9wqaaxnKobznSf2MxqJcm6iXRSeV+d5xHT1uTT71XkBrS81GNa7xv4rGW0l0IR9izhWamDK933GRUh4Y9NRtxYhGfWhzEPSv3rYLj9d9iaFln3MoeWQJr7WwWewhpKHJzxdXZ6GBGPYV3N45OnCr2j9fSjscfKjVITA==",
+  "value": {
+    "request": "synthetic-only",
+    "nested": {
+      "ok": true
+    },
+    "unicode": "연결 확인"
+  }
+}

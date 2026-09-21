@@ -388,6 +388,7 @@ html[data-theme=dark] .auth-submit{background:#edf1f7;color:#141b27;border-color
 <link rel="stylesheet" href="skills-panel.css">
 <link rel="stylesheet" href="virtual-office.css">
 <link rel="stylesheet" href="ai-meeting.css">
+<link rel="stylesheet" href="ai-review.css">
 </head>
 <body data-auth-state="checking"><div id="studio-dashboard" hidden inert>
 
@@ -1595,4 +1596,4 @@ window.StudioBoot=()=>window.StudioBootPromise||(window.StudioBootPromise=(async
  button.addEventListener('click',()=>{const theme=root.dataset.theme==='dark'?'light':'dark';apply(theme);try{localStorage.setItem('studio-theme',theme)}catch{}});
  system.addEventListener('change',e=>{let saved;try{saved=localStorage.getItem('studio-theme')}catch{}if(saved!=='dark'&&saved!=='light')apply(e.matches?'dark':'light')});
 })();
-</script><script src="contents-drive.js"></script><script src="operation-metrics.js"></script><script src="happier-cloud.js"></script><script src="skills-panel.js"></script><script src="habblaud-art.js"></script><script src="virtual-office.js"></script><script src="ai-meeting.js"></script><script type="module" src="dashboard-auth.js"></script></body></html>
+</script><script src="contents-drive.js"></script><script src="operation-metrics.js"></script><script src="happier-cloud.js"></script><script src="skills-panel.js"></script><script src="habblaud-art.js"></script><script src="virtual-office.js"></script><script src="ai-meeting.js"></script><script src="ai-review.js"></script><script type="module" src="dashboard-auth.js"></script></body></html>

@@ -1,10 +1,11 @@
 /* FIND.INC office simulation. Habblaud MIT art; authenticated dashboard runs only. */
 (() => {
   'use strict';
-  const art=window.HabblaudArt, W=1120,H=1320,STEP=296,TOP=90,DH=736,WING=440;
+  const art=window.HabblaudArt, W=1120,H=1616,STEP=296,TOP=90,DH=736,WING=440;
   const terminal=new Set(['completed','failed']);
   const states={checking:'연결 확인',creating:'세션 생성',running:'작업 중',awaiting_approval:'승인 대기',completed:'완료',failed:'오류',disconnected:'연결 끊김',uncertain:'확인 필요'};
   const teams=[
+    {id:'hall',name:'대강당 · 품평회',floor:5,color:'#9a7fa8',rooms:['무대','객석','로비']},
     {id:'lead',name:'경영 · 전체 회의',floor:4,color:'#858da5',rooms:['대표 · 의사결정','전사 타운홀','프로젝트 리뷰']},
     {id:'strategy',name:'전략',floor:3,color:'#649d8a',rooms:['브랜드 · 상품','경쟁 · 시장','고객 인사이트']},
     {id:'contents',name:'콘텐츠',floor:2,color:'#b49b6c',rooms:['카피 · 브리프','이미지 · 제품 컷','영상 · 랜딩']},
@@ -72,7 +73,7 @@
   function mount(){
     if(root)return;
     root=document.createElement('section');root.id='virtual-office';root.hidden=true;root.setAttribute('aria-label','FIND.INC 버추얼 오피스');
-    root.innerHTML=`<header class="vo-toolbar"><div class="vo-heading"><span class="vo-mark" aria-hidden="true">▥</span><div><p>FIND.INC / THE WORKPLACE</p><h1>작업이 살아 움직이는 오피스</h1></div></div><div class="vo-tools"><span class="vo-clock"></span><label for="vo-day">채광</label><select id="vo-day" aria-label="채광 시간"><option value="auto">실제 시간</option><option value="day">밝은 낮</option><option value="dusk">노을</option><option value="night">도시의 밤</option></select><select id="vo-view" aria-label="창밖 배경"><option value="skyline">도시 파노라마</option><option value="river">리버뷰</option></select><label for="vo-weather">날씨</label><select id="vo-weather" aria-label="오피스 날씨"><option value="clear">☀ 맑음</option><option value="cloudy">☁ 흐림</option><option value="rain">☂ 비</option><option value="snow">❄ 눈</option></select><button id="vo-zoom-out" aria-label="오피스 축소">−</button><button id="vo-zoom-in" aria-label="오피스 확대">+</button><button id="vo-meeting" aria-pressed="false" title="대기 중인 캐릭터가 모이는 회의 연출입니다. 실제 작업은 계속됩니다.">전체 회의</button><button id="vo-launch">스킬 실행 ↗</button></div></header><div class="vo-viewport" tabindex="0" aria-label="오피스 전경. 스크롤로 층 이동"><div class="vo-scene"><canvas width="1120" height="1320" aria-label="4개 층의 픽셀아트 오피스. 담당자 목록에서 작업을 확인하세요."></canvas>${teams.map((t,i)=>`<button class="vo-floor-link" data-floor="${i}" style="top:${(baseY(t.id)+8)/H*100}%">${t.floor}F · ${t.name}</button>`).join('')}</div></div><nav class="vo-floorbar" aria-label="층 보기"><button class="vo-floor-pill" data-view="all" aria-pressed="true">전체 층</button>${teams.map((t,i)=>`<button class="vo-floor-pill" data-view="${i}" aria-pressed="false">${t.floor}F ${t.name.split(' ')[0]}</button>`).join('')}</nav><aside class="vo-sidebar"><div class="vo-roster-wrap"><p class="vo-section-label">THE TEAM <span id="vo-count"></span></p><div class="vo-roster"></div></div><div class="vo-detail"></div><section class="vo-feed"><p class="vo-section-label">OFFICE JOURNAL</p><div class="vo-feed-items"></div></section></aside><footer class="vo-footer"><span class="vo-connection" role="status"></span><span>대화는 휴식 연출 · <a href="https://github.com/marmottajr/habblaud" target="_blank" rel="noopener">Habblaud art ↗</a> · FIND.INC</span></footer>`;
+    root.innerHTML=`<header class="vo-toolbar"><div class="vo-heading"><span class="vo-mark" aria-hidden="true">▥</span><div><p>FIND.INC / THE WORKPLACE</p><h1>작업이 살아 움직이는 오피스</h1></div></div><div class="vo-tools"><span class="vo-clock"></span><label for="vo-day">채광</label><select id="vo-day" aria-label="채광 시간"><option value="auto">실제 시간</option><option value="day">밝은 낮</option><option value="dusk">노을</option><option value="night">도시의 밤</option></select><select id="vo-view" aria-label="창밖 배경"><option value="skyline">도시 파노라마</option><option value="river">리버뷰</option></select><label for="vo-weather">날씨</label><select id="vo-weather" aria-label="오피스 날씨"><option value="clear">☀ 맑음</option><option value="cloudy">☁ 흐림</option><option value="rain">☂ 비</option><option value="snow">❄ 눈</option></select><button id="vo-zoom-out" aria-label="오피스 축소">−</button><button id="vo-zoom-in" aria-label="오피스 확대">+</button><button id="vo-meeting" aria-pressed="false" title="대기 중인 캐릭터가 모이는 회의 연출입니다. 실제 작업은 계속됩니다.">전체 회의</button><button id="vo-launch">스킬 실행 ↗</button></div></header><div class="vo-viewport" tabindex="0" aria-label="오피스 전경. 스크롤로 층 이동"><div class="vo-scene"><canvas width="1120" height="${H}" aria-label="5개 층의 픽셀아트 오피스. 담당자 목록에서 작업을 확인하세요."></canvas><div class="vo-hall-screen" hidden aria-label="대강당 화면"></div><button class="vo-hall-cta" type="button">AI 품평회 ↗</button>${teams.map((t,i)=>`<button class="vo-floor-link" data-floor="${i}" style="top:${(baseY(t.id)+8)/H*100}%">${t.floor}F · ${t.name}</button>`).join('')}</div></div><nav class="vo-floorbar" aria-label="층 보기"><button class="vo-floor-pill" data-view="all" aria-pressed="true">전체 층</button>${teams.map((t,i)=>`<button class="vo-floor-pill" data-view="${i}" aria-pressed="false">${t.floor}F ${t.name.split(' ')[0]}</button>`).join('')}</nav><aside class="vo-sidebar"><div class="vo-roster-wrap"><p class="vo-section-label">THE TEAM <span id="vo-count"></span></p><div class="vo-roster"></div></div><div class="vo-detail"></div><section class="vo-feed"><p class="vo-section-label">OFFICE JOURNAL</p><div class="vo-feed-items"></div></section></aside><footer class="vo-footer"><span class="vo-connection" role="status"></span><span>대화는 휴식 연출 · <a href="https://github.com/marmottajr/habblaud" target="_blank" rel="noopener">Habblaud art ↗</a> · FIND.INC</span></footer>`;
     document.body.append(root);canvas=root.querySelector('canvas');ctx=canvas.getContext('2d');viewport=root.querySelector('.vo-viewport');scene=root.querySelector('.vo-scene');
     root.querySelector('#vo-day').onchange=e=>dayMode=e.target.value;
     root.querySelector('#vo-view').onchange=e=>cityView=e.target.value;
@@ -85,6 +86,7 @@
     root.querySelector('#vo-zoom-in').onclick=()=>setZoom(zoom+.15);root.querySelector('#vo-zoom-out').onclick=()=>setZoom(zoom-.15);
     root.querySelector('#vo-launch').onclick=()=>window.SkillsPanel?.open();
     root.querySelectorAll('[data-floor]').forEach(b=>b.onclick=()=>focusFloor(Number(b.dataset.floor)));
+    root.querySelector('.vo-hall-cta').onclick=()=>window.dispatchEvent(new CustomEvent('vo-hall-open'));placeHall();
     canvas.onclick=e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*canvas.height/r.height+detailOffset();const a=[...actors.values()].find(a=>Math.abs(x-a.x)<22&&Math.abs(y-a.y+20)<34);if(a){selected=a.id;renderPanels();}};
   }
   function setZoom(z){zoom=Math.max(.7,Math.min(1.8,z));scene.style.width=Math.round(W*zoom)+'px';}
@@ -92,10 +94,18 @@
   function setFloorView(v){floorView=v==='all'?'all':Math.max(0,Math.min(teams.length-1,Number(v)));root.querySelectorAll('.vo-floor-pill').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===String(floorView))));
     const one=floorView!=='all';root.dataset.floorView=one?teams[floorView].floor+'F':'all';
     // A single floor gets its own taller canvas: the summary storey on top plus an extra wing below.
-    canvas.height=one?DH:H;canvas.setAttribute('aria-label',one?`${teams[floorView].floor}F ${teams[floorView].name} 상세 평면. 업무 공간과 추가 라운지·회의실을 보여줍니다.`:'4개 층의 픽셀아트 오피스. 담당자 목록에서 작업을 확인하세요.');
-    root.querySelectorAll('.vo-floor-link').forEach((b,i)=>{b.hidden=one&&i!==floorView;b.style.top=one?`${16/DH*100}%`:`${(TOP+i*STEP+8)/H*100}%`;});viewport.scrollTop=0;}
+    canvas.height=one?DH:H;canvas.setAttribute('aria-label',one?`${teams[floorView].floor}F ${teams[floorView].name} 상세 평면. 업무 공간과 추가 라운지·회의실을 보여줍니다.`:'5개 층의 픽셀아트 오피스. 담당자 목록에서 작업을 확인하세요.');
+    root.querySelectorAll('.vo-floor-link').forEach((b,i)=>{b.hidden=one&&i!==floorView;b.style.top=one?`${16/DH*100}%`:`${(TOP+i*STEP+8)/H*100}%`;});viewport.scrollTop=0;placeHall();
+    if(one)window.dispatchEvent(new CustomEvent('vo-floor-enter',{detail:{floor:teams[floorView].id}}));}
   const detailOffset=()=>floorView==='all'?0:baseY(teams[floorView].id)-8;
-  function focusFloor(i){if(floorView!=='all'){setFloorView(i);return;}viewport.scrollTo({top:(TOP+i*STEP-10)*scene.clientWidth/W,behavior:reduced.matches?'instant':'smooth'});}
+  // The hall screen and entry button are DOM overlays aligned to the canvas stage (scene units).
+  function placeHall(){
+    const hy=baseY('hall'),one=floorView!=='all',showing=!one||teams[floorView].id==='hall',ch=one?DH:H,off=one?hy-8:0;
+    const screen=root.querySelector('.vo-hall-screen'),cta=root.querySelector('.vo-hall-cta');
+    Object.assign(screen.style,{left:330/W*100+'%',width:460/W*100+'%',top:(hy+14-off)/ch*100+'%',height:170/ch*100+'%'});
+    screen.classList.toggle('vo-hidden',!showing);cta.hidden=!showing;Object.assign(cta.style,{left:52/W*100+'%',top:(hy+128-off)/ch*100+'%'});
+  }
+  function focusFloor(i){if(floorView!=='all'){setFloorView(i);return;}if(teams[i]?.id==='hall')window.dispatchEvent(new CustomEvent('vo-floor-enter',{detail:{floor:'hall'}}));viewport.scrollTo({top:(TOP+i*STEP-10)*scene.clientWidth/W,behavior:reduced.matches?'instant':'smooth'});}
   function avatar(a){if(!portraits.has(a.id))portraits.set(a.id,art.avatarCanvas(a.seed,{scale:2}).toDataURL());return portraits.get(a.id);}
   function renderPanels(){
     if(!root)return;
@@ -121,7 +131,7 @@
     if(open){renderPanels();fit();last=performance.now();raf=requestAnimationFrame(frame);refresh();viewport.focus({preventScroll:true});}else{cancelAnimationFrame(raf);clearTimeout(refreshTimer);document.getElementById('virtual-office-toggle').focus();}
   }
   function fit(){if(!scene)return;scene.style.minWidth='780px';setZoom(Math.max(.7,Math.min(1,(viewport.clientWidth-30)/W)));}
-  function clear(){generation++;refreshing=false;clearTimeout(refreshTimer);runs.clear();feed=[];demo=false;meeting=false;aiMeeting.active=false;resetActors();if(open){open=false;root.hidden=true;document.body.classList.remove('vo-active','vo-night');document.getElementById('virtual-office-toggle')?.setAttribute('aria-pressed','false');}cancelAnimationFrame(raf);if(root){root.querySelector('#vo-meeting').setAttribute('aria-pressed','false');root.querySelector('#vo-meeting').textContent='전체 회의';renderPanels();}}
+  function clear(){generation++;refreshing=false;clearTimeout(refreshTimer);runs.clear();feed=[];demo=false;meeting=false;aiMeeting.active=false;hall.active=false;hall.cast={};resetActors();if(open){open=false;root.hidden=true;document.body.classList.remove('vo-active','vo-night');document.getElementById('virtual-office-toggle')?.setAttribute('aria-pressed','false');}cancelAnimationFrame(raf);if(root){root.querySelector('#vo-meeting').setAttribute('aria-pressed','false');root.querySelector('#vo-meeting').textContent='전체 회의';renderPanels();}}
   // Explicit opt-in preview uses sample runs; never contacts or starts a Codex session.
   function preview(){clear();demo=true;toggle(true);const now=new Date().toISOString();ingest([
     {id:'preview-brand',skill:'brand',label:'브랜드 아이덴티티 조사',state:'running',progress:'공식 자료에서 브랜드 컬러를 확인하고 있어요.',createdAt:now,sessionId:'preview-01'},
@@ -139,7 +149,7 @@
       a.meetingHome={team:a.team,room:a.room};
       const spot={x:315+(seat%5)*96,y:baseY('lead')+190+Math.floor(seat/5)*38};seat++;
       walk(a,'lead',1,'meeting',spot);say(a,'타운홀 라운지에서 만나요. (회의 연출)');
-    }focusFloor(0);}else for(const a of actors.values())if(a.meetingHome){const home=a.meetingHome;a.meetingHome=null;walk(a,home.team,home.room,'idle');}
+    }focusFloor(teams.findIndex(t=>t.id==='lead'));}else for(const a of actors.values())if(a.meetingHome){const home=a.meetingHome;a.meetingHome=null;walk(a,home.team,home.room,'idle');}
     renderPanels();
   }
   function sky(t){
@@ -230,7 +240,41 @@
     }
     text(t.id==='operation'?'COFFEE BAR':t.id==='contents'?'IDEA LOUNGE':'GARDEN LOUNGE',674,y+263,9,'#72775e');
   }
+  // 5F auditorium: stage, big screen (DOM overlay sits on top), curtains and front audience rows.
+  function hallFloor(t,y){
+    const night=light.night;rect(24,y+5,1080,276,'#28424435');rect(22,y,1080,274,'#eff0e7');
+    art.drawFloor(ctx,'wood',30,y+100,978,163,{seed:hash('hall'),tint:'#b89a7c'});
+    rect(30,y+2,978,186,night?'#262a38':'#353a4d');for(let i=0;i<16;i++)rect(40+i*61,y+14,42,160,night?'#2e3344':'#3f4559');
+    rect(326,y+10,468,178,'#151821');rect(330,y+14,460,170,'#0e1117');
+    text('FIND.INC  AI REVIEW',476,y+96,14,'#8f96b3');text('발표 화면',528,y+116,10,'#6b7290');
+    for(const x of [292,794]){rect(x,y+6,34,192,'#7b2f3d');for(let k=0;k<5;k++)rect(x+3+k*6,y+6,2,192,'#93404f');}
+    rect(232,y+188,656,30,'#7d6046');rect(232,y+188,656,4,'#a8865f');rect(232,y+214,656,4,'#5a4330');
+    rect(690,y+168,30,34,'#4f3a29');rect(686,y+166,38,5,'#6d5139');furniture('floor_lamp',256,y+214);furniture('floor_lamp',864,y+214);
+    for(const x of [96,180,264,856,940])furniture('bench',x,y+236);for(const x of [138,222,898])furniture('bench',x,y+262);
+    furniture('plant_tall',48,y+236,'palm');
+    rect(30,y+2,150,26,t.color);rect(30,y+26,150,2,'#00000022');text(`${t.floor}F`,40,y+21,15,'#ffffff');text('대강당',78,y+20,11,'#ffffffdd');
+    text('THE AUDITORIUM / 대강당 · 품평회',192,y+20,12,'#c9b6d6');
+    rect(1014,y+3,82,260,night?'#a0b0ad':'#d3dfd8');rect(1022,y+8,66,85,night?'#bccac1':'#eaf0e8');text('↕',1041,y+28,15,'#507a66');
+    furniture('elevator',1022,y+96,undefined,elevatorFloor===t.floor?4:0);text(`${t.floor}F`,1040,y+125,13,'#5c7a6b');text('LIFT',1037,y+241,9,'#718a7b');
+    partition(1008,y+116,'#9a7fa8');rect(30,y+266,1072,8,'#bfcec4');rect(30,y+266,1072,2,'#f6f7ef');
+    text('STAGE · 발표',250,y+208,9,'#f1dfc6');text('FRONT ROW · 품평단',236,y+262,9,'#6d5d4c');
+    if(night){ctx.save();ctx.beginPath();ctx.rect(30,y+101,978,163);ctx.clip();for(const x of [420,700]){const g=ctx.createRadialGradient(x,y+200,5,x,y+200,120);g.addColorStop(0,'#ffe6a830');g.addColorStop(1,'#ffe6a800');ctx.fillStyle=g;ctx.fillRect(x-120,y+90,240,180);}ctx.restore();}
+  }
+  function hallWing(t,y){
+    const Y=y+262,night=light.night;wingLabels=[];
+    rect(22,Y,1080,WING+8,'#eff0e7');art.drawFloor(ctx,'carpet',30,Y,978,WING-12,{seed:hash('hall-wing'),tint:'#a88fa6'});
+    // Tiered audience seating continues below the stage in the detailed view.
+    for(let r=0;r<5;r++){rect(150,Y+20+r*62,660,6,'#8b7392');for(let c=0;c<9;c++)furniture('cafe_chair',190+c*72,Y+56+r*62,'up');}
+    text('AUDIENCE · 객석 45석',160,Y+346,10,'#5e4b63');
+    rect(36,Y+20,100,320,'#e7dfe8');text('LOBBY',50,Y+40,10,'#5e4b63');furniture('reception_desk',86,Y+120);furniture('bench',86,Y+220);furniture('plant_tall',60,Y+300,'monstera');furniture('water_cooler',112,Y+300);
+    rect(826,Y+20,176,150,'#d9d3df');text('CONTROL BOOTH',840,Y+40,10,'#5e4b63');furniture('desk',870,Y+110);furniture('office_chair',900,Y+126);furniture('tv',950,Y+90);
+    rect(826,Y+186,176,154,'#e7dfe8');text('GREEN ROOM · 대기실',840,Y+206,10,'#5e4b63');furniture('sofa',912,Y+270,'down');furniture('mirror',850,Y+300);furniture('coffee_table',912,Y+320);
+    rect(1014,Y,82,WING-12,night?'#a0b0ad':'#d3dfd8');text('STAIRS',1032,Y+190,9,'#5c7a6b');for(let i=0;i<8;i++)rect(1024,Y+210+i*14,62,3,'#9fb3a8');
+    rect(30,Y+WING-12,1072,8,'#bfcec4');rect(30,Y+WING-12,1072,2,'#f6f7ef');
+    if(night)rect(30,Y,978,WING-12,'#14243b30');
+  }
   function roomFloor(t,y){
+    if(t.id==='hall'){hallFloor(t,y);return;}
     const p=interiors[t.id];rect(24,y+5,1080,276,'#28424435');rect(22,y,1080,274,'#eff0e7');
     art.drawFloor(ctx,p.floor,30,y+100,978,163,{seed:hash(t.id),tint:p.tint});
     rect(30,y+2,978,30,p.wall);rect(30,y+28,978,3,p.trim);windows(y,light.night,clock);
@@ -259,6 +303,7 @@
   let wingLabels=[];
   function glassWall(x,y,w){rect(x,y,w,4,'#b9d3d6aa');rect(x,y,w,1,'#ffffff');for(let i=x;i<x+w;i+=46)rect(i,y-2,3,8,'#7f9c97');}
   function wing(t,y){
+    if(t.id==='hall'){hallWing(t,y);return;}
     const p=interiors[t.id],Y=y+262,night=light.night;wingLabels=[];
     rect(22,Y,1080,WING+8,'#eff0e7');art.drawFloor(ctx,p.floor,30,Y,978,WING-12,{seed:hash(t.id+'wing'),tint:p.tint});
     rect(30,Y+2,978,26,'#00000010');text('CORRIDOR · '+t.floor+'F',44,Y+18,9,'#6d7e70');
@@ -320,7 +365,7 @@
     }else if(a.phase==='lounge'&&t>a.until){const d=desk(a.team,a.room);a.path=[{x:a.x,y:baseY(a.team)+244},{x:d.x,y:baseY(a.team)+244},d];a.afterWalk='idle';a.phase='return';}
     const run=rr.find(active),pose=a.path.length?'walk':['lounge','meeting'].includes(a.phase)?'talk':busy?(run?.state==='awaiting_approval'?'raise_hand':run?.state==='disconnected'?'wait':'type'):'stand';
     if(band&&(a.y<band[0]||a.y>band[1]))return;
-    if(a.inLift){elevatorFloor=teams[Math.max(0,Math.min(3,Math.round((a.y-TOP-150)/STEP)))].floor;return;}
+    if(a.inLift){elevatorFloor=teams[Math.max(0,Math.min(teams.length-1,Math.round((a.y-TOP-150)/STEP)))].floor;return;}
     const s=art.characterSprite({appearance:a.appearance,dir:a.path.length?a.dir:pose==='type'?'up':'down',pose,frame:reduced.matches?0:Math.floor(t/(pose==='walk'?140:pose==='type'?130:400))});sprite(s,a.x,a.y);
     if(selected===a.id){rect(a.x-17,a.y+3,34,2,'#609b7e');}
     text(a.name,a.x-27,a.y+17,9,'#486a59');
@@ -334,8 +379,8 @@
     lines.forEach((l,i)=>text(l,x+9,y+17+i*15,10,a.guest?'#eef4e6':'#3f5d50'));
   }
   function bubble(a,t){
-    if(a.phase==='meeting'&&a.id!=='director'&&!a.aiMeet)return;
-    if(a.aiMeet&&t<a.bubbleUntil&&a.bubble&&!(band&&(a.y<band[0]||a.y>band[1]))){meetingBubble(a);return;}
+    if(a.phase==='meeting'&&a.id!=='director'&&!a.aiMeet&&!a.review)return;
+    if((a.aiMeet||a.review)&&t<a.bubbleUntil&&a.bubble&&!(band&&(a.y<band[0]||a.y>band[1]))){meetingBubble(a);return;}
     const rr=actorRuns(a),r=rr.find(active)||rr[0];let message=t<a.bubbleUntil?a.bubble:'';
     if(!message&&r&&active(r))message=`${states[r.state]} · ${r.label||r.skill}`;
     if(!message||a.inLift||band&&(a.y<band[0]||a.y>band[1]))return;
@@ -371,11 +416,11 @@
   const aiMeeting={
     active:false,
     start(topic){
-      mount();if(!open)toggle(true);if(meeting)gather(false);this.active=true;setFloorView(0);
+      mount();if(!open)toggle(true);if(meeting)gather(false);this.active=true;setFloorView(teams.findIndex(t=>t.id==='lead'));
       const seats=[{x:330,y:200},{x:470,y:200},{x:610,y:200},{x:750,y:200}],teamOrder=['lead','strategy','contents','operation'];
       teamOrder.forEach((team,i)=>{
         const own=actors.get(meetingReps[team]);
-        const a=own&&!actorRuns(own).some(active)?own:[...actors.values()].find(x=>x.team===team&&!x.guest&&!actorRuns(x).some(active));
+        const a=own&&!own.review&&!actorRuns(own).some(active)?own:[...actors.values()].find(x=>x.team===team&&!x.guest&&!x.review&&!actorRuns(x).some(active));
         if(!a)return;a.aiMeet=true;a.speaker=team;a.speakColor=speakColors[team];a.meetingHome={team:a.team,room:a.room};
         walk(a,'lead',1,'meeting',{x:seats[i].x,y:baseY('lead')+seats[i].y});
       });
@@ -394,5 +439,32 @@
       if(open)renderPanels();
     }
   };
-  window.VirtualOffice={toggle,clear,preview,aiMeeting,isOpen:()=>open};
+  // AI review staging on 5F. Seats are spatial only; lines come from the real review sessions or the user.
+  const reviewPrefs={'전략':['analyst','researcher'],'고객':['customer','researcher'],'콘텐츠':['designer','writer'],'채널 운영':['operator','search'],'브랜드':['researcher','analyst'],'성과 분석':['metrics','search']};
+  const reviewColors={'전략':'#649d8a','고객':'#5d8fa8','콘텐츠':'#b49b6c','채널 운영':'#7e9db7','브랜드':'#9a7fa8','성과 분석':'#8a9a5b'};
+  const hall={
+    active:false,cast:{},
+    get index(){return teams.findIndex(t=>t.id==='hall');},
+    focus(){mount();if(!open)toggle(true);setFloorView(this.index);},
+    start(perspectives){
+      mount();if(!open)toggle(true);this.end();this.active=true;
+      const free=x=>x&&!x.guest&&!x.aiMeet&&!x.review&&!actorRuns(x).some(active);
+      const pick=prefs=>prefs.map(id=>actors.get(id)).find(free)||[...actors.values()].find(free);
+      const seat=(a,key,spot,color)=>{a.review=key;a.speakColor=color;a.meetingHome={team:a.team,room:a.room};walk(a,'hall',1,'meeting',{x:spot.x,y:baseY('hall')+spot.y});this.cast[key]=a.id;};
+      const presenter=pick(['builder','writer','designer']);if(presenter)seat(presenter,'presenter',{x:846,y:214},'#b49b6c');
+      const row=[{x:430,y:236},{x:500,y:236},{x:570,y:236},{x:640,y:236},{x:465,y:262},{x:535,y:262}];
+      perspectives.forEach((p,i)=>{const a=pick(reviewPrefs[p]||[]);if(a)seat(a,'r'+i,row[i%row.length],reviewColors[p]||'#858da5');});
+      let me=actors.get('me-review');if(!me){me=makeActor('me-review','나 (대표)','hall',1);me.guest=true;}
+      Object.assign(me,{review:'me',x:720,y:baseY('hall')+262,path:[],phase:'meeting',team:'hall'});this.cast.me='me-review';
+      setFloorView(this.index);renderPanels();
+      return Object.fromEntries(Object.entries(this.cast).map(([k,id])=>[k,actors.get(id)?.name||'']));
+    },
+    say(key,line){const a=actors.get(this.cast[key]);if(!a)return false;a.bubble=String(line||'').slice(0,200);a.bubbleUntil=performance.now()+9000;
+      feed.unshift({name:key==='me'?'나 (대표)':a.name,text:String(line||'').slice(0,80),time:new Date().toISOString()});feed=feed.slice(0,24);if(open)renderPanels();return true;},
+    screen(node){mount();const el=root.querySelector('.vo-hall-screen');el.replaceChildren(...(node?[node]:[]));el.hidden=!node;placeHall();},
+    end(){this.active=false;actors.delete('me-review');this.cast={};
+      for(const a of actors.values())if(a.review){a.review=null;a.bubble='';if(a.meetingHome){const home=a.meetingHome;a.meetingHome=null;walk(a,home.team,home.room,'idle');}}
+      if(open)renderPanels();}
+  };
+  window.VirtualOffice={toggle,clear,preview,aiMeeting,hall,isOpen:()=>open,setFloorView:v=>{mount();setFloorView(v);}};
 })();

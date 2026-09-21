@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createDecipheriv,createCipheriv,randomBytes} from 'node:crypto';
-import {CloudClient,CLOUD,TARGET,encryptData,decryptData,parseModels,readTranscript,readMeeting,mergeLocal,meetingEndPrompt,b64,unb64} from './cloud-client.mjs';
+import {CloudClient,CLOUD,TARGET,encryptData,decryptData,parseModels,readTranscript,readMeeting,readTagged,insideProject,mergeLocal,meetingEndPrompt,b64,unb64} from './cloud-client.mjs';
 import {sealTerminalProvisioningV3Payload} from './vendor/terminalProvisioningV2.ts';
 
 const vault=()=>({value:{},async load(){return this.value;},async save(value){this.value=structuredClone(value);}});
 const model={id:'test-model',label:'Test',efforts:['medium'],defaultEffort:'medium'};
 const body=()=>({requestId:crypto.randomUUID(),skill:'brand',model:model.id,effort:'medium',instruction:'Generate a report',apply:false});
+const P=(...p)=>[TARGET.path,...p].join(String.fromCharCode(92));
 const wait=async predicate=>{for(let i=0;i<100;i++){if(predicate())return;await new Promise(r=>setTimeout(r,5));}throw Error('test state did not settle');};
 
 test('AES-GCM wire output matches the official Node bundle format and JSON envelope',async()=>{
@@ -125,4 +126,45 @@ test('Meeting chat is sent encrypted to the session pending queue and end reques
  await client.sendToMeeting(id,'','end');const end=(await decryptData(posts[1].body.ciphertext,key)).content.text;
  assert.match(end,/docs\/meetings\/\d{4}-\d{2}-\d{2}-신제품-런칭\.md/);assert.match(end,/push origin HEAD:main/);
  await assert.rejects(client.sendToMeeting(id,'late','say'),/마무리/);client.close();
+});
+
+test('Review runs presenter, then each reviewer in turn, then answers, and closes with docs summary',async()=>{
+ const client=new CloudClient({owner:'test',vault:vault()});await client.readyPromise;client.models=[model];client.connectSocket=async()=>{};
+ const transcripts=new Map(),pushed=[];let spawned=0;
+ const msg=(id,text)=>({id,seq:transcripts.size+Math.random(),content:{role:'agent',content:{type:'acp',data:{type:'message',message:text}}}});
+ const done=id=>({id,seq:99,content:{role:'agent',content:{type:'event',data:{type:'task_complete'}}}});
+ client.start=async s=>{s.sessionId='sess-'+(++spawned);s.state='running';transcripts.set(s.sessionId,[]);};
+ client.readSessionRecords=async sid=>({records:transcripts.get(sid)||[],pending:0});
+ client.pushToSession=async(s,text)=>{pushed.push({sid:s.sessionId,text});s.expectExtra=(s.expectExtra||0)+1;transcripts.get(s.sessionId).push({id:'u'+pushed.length,seq:50+pushed.length,content:{role:'user',content:{type:'text',text}}});return 'local-'+pushed.length;};
+ const path=P('01-strategy','brief','BMW','X5');
+ const body={requestId:crypto.randomUUID(),topic:'X5 광고 품평',items:[{kind:'brief',label:'X5 브리프',path}],presenter:{model:model.id,effort:'medium'},reviewers:[{perspective:'전략',model:model.id,effort:'medium'},{perspective:'고객',model:model.id,effort:'medium'}]};
+ let r=await client.createReview(body);assert.equal(r.sessions[0].sessionId,'sess-1');
+ await assert.rejects(client.createReview({...body,requestId:crypto.randomUUID()}),/진행 중인 품평회/);
+ assert.equal((await client.getReview(r.id)).state,'presenting');
+ transcripts.get('sess-1').push(msg('p1','@@발표: 성능 수치로 시선을 끕니다.\n잡담'),done('p1e'));
+ r=await client.getReview(r.id);assert.equal(r.state,'reviewing');assert.equal(spawned,2,'first reviewer spawned only after the presentation');
+ assert.match(client.reviews.get(r.id).sessions[1].payload.pendingFirstInput.text,/성능 수치로 시선을 끕니다/);
+ r=await client.sendToReview(r.id,'고객 관점 꼭 봐주세요','say');assert.equal(pushed.at(-1).sid,'sess-2','user chat goes to the reviewer currently speaking');
+ transcripts.get('sess-2').push(msg('f1','@@피드백: 브리프 목표와 맞습니다.'),done('f1e'));
+ r=await client.getReview(r.id);assert.equal(spawned,3);assert.equal(r.progress.includes('고객'),true);
+ transcripts.get('sess-3').push(msg('f2','@@피드백: 조건 문구를 키워주세요.'),done('f2e'));
+ r=await client.getReview(r.id);assert.equal(r.state,'answering');assert.match(pushed.at(-1).text,/\[품평 답변\][\s\S]*조건 문구를 키워주세요/);
+ transcripts.get('sess-1').push(msg('p2','@@발표: 조건 문구를 18pt로 키우겠습니다.'),done('p2e'));
+ r=await client.getReview(r.id);assert.equal(r.state,'open');
+ assert.deepEqual(r.timeline.map(u=>u.speaker),['presenter','me','reviewer','reviewer','presenter']);
+ r=await client.sendToReview(r.id,'','end');assert.equal(r.state,'closing');assert.match(pushed.at(-1).text,/docs\/reviews\/\d{4}-\d{2}-\d{2}-x5-광고-품평\.md/);assert.match(pushed.at(-1).text,/전략\(test-model\/medium\)/);
+ transcripts.get('sess-1').push(msg('p3','@@발표: 결론입니다.\n@@결과: docs/reviews/2026-11-18-x5-광고-품평.md'),done('p3e'));
+ r=await client.getReview(r.id);assert.equal(r.state,'completed');assert.match(r.summary,/docs\/reviews/);client.close();
+});
+test('Artifact listing reads the PC folders through the machine RPC and rejects paths outside the project',async()=>{
+ const v=vault();v.value={credentials:{token:'t',machineKey:b64(randomBytes(32))}};
+ const client=new CloudClient({owner:'test',vault:v});await client.readyPromise;client.machineKeys.set(TARGET.id,randomBytes(32));
+ const tree={[P('01-strategy','brief')]:[{name:'BMW',type:'directory',path:'B'}],B:[{name:'X5',type:'directory',path:'B/X5'}],'B/X5':[{name:'brief.md',type:'file',path:'B/X5/brief.md',modified:5}],
+  [P('02-contents','ad-images')]:[{name:'BMW',type:'directory',path:'I'}],I:[{name:'X5',type:'directory',path:'I/X5'}],'I/X5':[{name:'ads-1',type:'directory',path:'I/X5/ads-1',modified:3},{name:'archive',type:'directory',path:'I/X5/archive'}]};
+ client.rpc=async(target,method,payload,timeout,opts)=>{assert.equal(method,'daemon.filesystem.listDirectory');assert.equal(opts?.allowError,true);return tree[payload.path]?{ok:true,entries:tree[payload.path]}:{ok:false,error:'ENOENT'};};
+ const res=await client.listArtifacts();
+ assert.deepEqual(res.briefs.map(b=>[b.label,b.files]),[['BMW · X5 마케팅 브리핑',['brief.md']]]);
+ assert.deepEqual(res.images.map(i=>i.label),['BMW · X5 · ads-1'],'archive folders are not offered');assert.deepEqual(res.videos,[]);
+ assert.equal(insideProject(P('02-contents','a.png')),true);assert.equal(insideProject(P('..','secret.txt')),false);assert.equal(insideProject('C:\Windows\win.ini'),false);
+ client.close();
 });

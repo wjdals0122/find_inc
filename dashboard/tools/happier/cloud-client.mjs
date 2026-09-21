@@ -113,15 +113,93 @@ export function mergeLocal(utterances,localSays){
   return [...utterances,...localSays.filter(l=>!seen.has(l.localId)&&!seenText.includes(l.text)).map(l=>({id:l.localId,speaker:'me',text:l.text,pending:true}))];
 }
 
+
+// ---- AI review (품평회): presenter + N reviewer Codex sessions, orchestrated in turn by the browser.
+export const REVIEW_PERSPECTIVES={
+  '전략':'브랜드 포지셔닝, 브리프 목표와의 정합성, 경쟁 대비 차별성을 봅니다.',
+  '고객':'타깃 고객의 이해도, 구매 동기와 우려, 메시지 공감도를 봅니다.',
+  '콘텐츠':'카피 완성도, 시각 구성, 제작 품질, 자연스러운 한국어를 봅니다.',
+  '채널 운영':'채널별 포맷 적합성, 노출·전환 가능성, 운영 실행성을 봅니다.',
+  '브랜드':'브랜드 가이드와 톤 준수, 공식 근거 표기를 봅니다.',
+  '성과 분석':'측정 지표, 가설 검증 방법, 기대 성과의 근거를 봅니다.'
+};
+const REVIEW_MARK='[FIND.INC AI 품평회]';
+export const REVIEW_KINDS={brief:'마케팅 브리핑',image:'광고 이미지',video:'광고 영상'};
+const relPath=p=>String(p).startsWith(TARGET.path)?String(p).slice(TARGET.path.length).replace(/^[\\/]+/,'').replace(/\\/g,'/'):String(p);
+export function insideProject(p){const s=String(p||'');return s.startsWith(TARGET.path+'\\')&&!/(^|[\\/])\.\.([\\/]|$)/.test(s)&&!/[\0]/.test(s);}
+const itemList=items=>items.map(i=>`- [${REVIEW_KINDS[i.kind]||i.kind}] ${i.label} — ${relPath(i.path)}`).join('\n');
+export function reviewPresenterPrompt(r){
+  return `${REVIEW_MARK} 발표
+당신은 FIND.INC 콘텐츠팀 발표자입니다. 프로젝트 ${TARGET.path}의 AGENTS.md와 docs/company/company.md를 읽어 회사 맥락을 파악하세요.
+품평회 주제: ${r.topic}
+먼저 git fetch로 원격 최신 상태를 확인하세요. 작업 트리는 바꾸지 말고, 원격에 더 최신 버전이 있는 Git 관리 파일은 git show로 읽으세요. 02-contents/는 Git이 아닌 Google Drive 동기화 폴더이므로 로컬 파일을 그대로 읽습니다.
+발표할 산출물:
+${itemList(r.items)}
+각 산출물을 읽고 핵심 의도, 타깃, 메시지, 시각 구성, 기대 효과를 발표하세요.
+응답은 발표 문장으로만 구성하고, 한 줄에 한 문장씩 "@@발표: ..." 형식을 지키세요. 산출물마다 2~4줄, 전체 6~14줄로 하세요.
+품평 중에는 파일 수정, 커밋, 배포, 외부 게시를 하지 마세요. 비밀값과 개인정보는 말하지 마세요.
+이후 "대표:"로 시작하는 메시지는 대표의 의견이고, "[품평 답변]" 메시지는 평가자 피드백 모음입니다. 답변도 "@@발표:" 형식으로 하세요. "[세션 종료]" 메시지를 받으면 그 지시를 따르세요.`;
+}
+function timelineText(r,filter=()=>true){
+  return r.timeline.filter(filter).map(u=>`[${u.speaker==='me'?'대표':u.speaker==='presenter'?'발표':(r.reviewers[u.reviewer]?.perspective||'평가')+' 피드백'}] ${u.text}`).join('\n');
+}
+export function reviewReviewerPrompt(r,i){
+  const v=r.reviewers[i];
+  return `${REVIEW_MARK} 피드백
+당신은 FIND.INC 품평회의 ${v.perspective} 관점 평가자입니다. ${REVIEW_PERSPECTIVES[v.perspective]||''}
+프로젝트 ${TARGET.path}의 AGENTS.md를 참고하고, 필요하면 아래 산출물 파일을 직접 읽으세요. 읽기만 허용됩니다.
+품평회 주제: ${r.topic}
+산출물:
+${itemList(r.items)}
+지금까지의 발표와 피드백:
+${timelineText(r)||'(아직 없음)'}
+${v.perspective} 관점에서 잘된 점 1개, 개선할 점 2~3개, 구체적인 수정 제안 1~2개를 말하세요. 앞선 피드백과 겹치면 동의나 보완으로 짧게 언급하세요. 대표 의견이 있으면 반영하세요.
+응답은 한 줄에 한 문장씩 "@@피드백: ..." 형식으로만 4~7줄 작성하세요. 파일 수정, 커밋, 배포, 외부 게시는 하지 마세요. 비밀값과 개인정보는 말하지 마세요.
+"대표:"로 시작하는 메시지에는 "@@피드백:" 형식으로 짧게 답하세요.`;
+}
+export function reviewAnswerPrompt(r){
+  return `[품평 답변]
+평가자들의 피드백과 대표 의견입니다.
+${timelineText(r,u=>u.speaker!=='presenter')}
+각 피드백의 수용 여부와 개선 계획을 "@@발표:" 형식으로 4~8줄 답변하세요. 마지막 줄에서 대표의 추가 의견을 요청하세요.`;
+}
+export function reviewSlug(topic){return (String(topic).toLowerCase().replace(/[^0-9a-z가-힣]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40))||'review';}
+export function reviewEndPrompt(r){
+  const date=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Seoul'}),file=`docs/reviews/${date}-${reviewSlug(r.topic)}.md`;
+  return `[세션 종료]
+대표가 품평회를 종료했습니다. 다음을 순서대로 수행하세요.
+1. "@@발표:" 형식으로 핵심 결론을 2~3줄 말하세요.
+2. ${file} 파일을 한국어 마크다운으로 작성하세요. 포함: 품평회 주제, 일시, 참석 에이전트(관점·모델·Effort), 발표 산출물(경로), 발표 내용 요약, 관점별 피드백, 대표 의견, 발표자 답변, 합의된 개선 사항과 다음 할 일. 아래 전체 기록을 근거로 하고 개인정보와 비밀값은 넣지 마세요. 같은 이름의 파일이 있으면 뒤에 -2, -3을 붙이세요.
+3. 이 파일 외에는 수정하지 말고 커밋이나 배포도 하지 마세요.
+4. 마지막 줄에 "@@결과: 저장 경로"를 한 줄로 남기세요. 실패했다면 원인을 적으세요.
+참석 에이전트: 발표자(${r.presenter.model}/${r.presenter.effort}), ${r.reviewers.map(v=>`${v.perspective}(${v.model}/${v.effort})`).join(', ')}
+전체 기록:
+${timelineText(r)}`;
+}
+// Parses one session's transcript into tagged lines. User messages are never shown from here
+// (the browser records the user's own lines), and readiness only counts after every message we sent.
+export function readTagged(records,tags){
+  const lines=[];let ready=false,failed=false,extraUserTurns=0;
+  for(const rec of records){const c=rec.content||rec,d=c?.content?.data;
+    if(c?.role==='user'){const t=typeof c?.content?.text==='string'?c.content.text:'';if(!t.startsWith(REVIEW_MARK))extraUserTurns++;ready=false;continue;}
+    if(c?.role!=='agent'||!d)continue;
+    if(c.content.type==='acp'&&d.type==='message'&&typeof d.message==='string'){ready=false;
+      d.message.split(/\r?\n/).forEach((line,i)=>{const hit=line.match(/^\s*@@\s*([^:：]{1,8})\s*[:：]\s*(.+)$/);if(!hit||!tags.includes(hit[1].trim()))return;lines.push({id:rec.id+':'+i,tag:hit[1].trim(),text:hit[2].trim().slice(0,600)});});}
+    if(c.content.type==='event'&&['ready','task_complete','turn_complete'].includes(d.type))ready=true;
+    if(['error','task_failed','turn_aborted'].includes(d.type))failed=true;
+  }
+  return {lines,ready,failed,extraUserTurns};
+}
+
 export class CloudClient {
   #credentials=null;
   constructor({owner,fetcher=globalThis.fetch.bind(globalThis),socketFactory=io,vault=new BrowserVault(owner)}={}) {
     this.owner=owner;this.fetcher=fetcher;this.socketFactory=socketFactory;this.vault=vault;
-    this.runs=new Map();this.meetings=new Map();this.machineKeys=new Map();this.sessionKeys=new Map();this.creating=new Set();this.closed=false;
+    this.runs=new Map();this.meetings=new Map();this.reviews=new Map();this.machineKeys=new Map();this.sessionKeys=new Map();this.creating=new Set();this.closed=false;
     this.readyPromise=this.restore();
   }
-  async restore(){const data=await this.vault.load();if(this.closed)return;this.#credentials=data.credentials||null;for(const r of data.runs||[])this.runs.set(r.id,r);for(const m of data.meetings||[])this.meetings.set(m.id,m);}
-  async persist(){if(this.closed)return;await this.vault.save({credentials:this.#credentials,runs:[...this.runs.values()].slice(-100),meetings:[...this.meetings.values()].slice(-20)});}
+  async restore(){const data=await this.vault.load();if(this.closed)return;this.#credentials=data.credentials||null;for(const r of data.runs||[])this.runs.set(r.id,r);for(const m of data.meetings||[])this.meetings.set(m.id,m);for(const r of data.reviews||[])this.reviews.set(r.id,r);}
+  async persist(){if(this.closed)return;await this.vault.save({credentials:this.#credentials,runs:[...this.runs.values()].slice(-100),meetings:[...this.meetings.values()].slice(-20),reviews:[...this.reviews.values()].slice(-10)});}
   async request(path,{body,auth=true,timeout=18000}={}) {
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
     try{const r=await this.fetcher(CLOUD+path,{method:body?'POST':'GET',headers:{...(body?{'Content-Type':'application/json'}:{}),...(auth&&this.#credentials?{Authorization:'Bearer '+this.#credentials.token}:{})},body:body?JSON.stringify(body):undefined,credentials:'omit',cache:'no-store',signal:controller.signal});
@@ -166,14 +244,14 @@ export class CloudClient {
     const key=openEncryptedDataKeyEnvelopeV1({envelope:unb64(row.dataEncryptionKey),recipientSecretKeyOrSeed:unb64(this.#credentials.machineKey)});
     if(!key||key.length!==32)throw Error('현재 계정으로 기기·세션 키를 열지 못했습니다.');return key;
   }
-  async rpc(target,method,payload,timeout=15000){
+  async rpc(target,method,payload,timeout=15000,{allowError=false}={}){
     await this.connectSocket();
     const key=this.machineKeys.get(target)||this.sessionKeys.get(target);if(!key)throw Error('암호화 RPC 키가 없습니다.');
     const ciphertext=await encryptData(payload,key);
     const response=await new Promise((resolve,reject)=>this.socket.timeout(timeout).emit('rpc-call',{method:target+':'+method,params:ciphertext,timeoutMs:timeout},(error,result)=>error?reject(Error('암호화 RPC 응답 시간이 초과됐습니다.')):resolve(result)));
     if(!response?.ok)throw Error('기기 RPC를 사용할 수 없습니다.');
     const result=await decryptData(Array.isArray(response.result)?response.result[0]:response.result,key);
-    if(result?.error||result?.errorCode)throw Error('기기에서 요청을 처리하지 못했습니다.');return result;
+    if(!allowError&&(result?.error||result?.errorCode))throw Error('기기에서 요청을 처리하지 못했습니다.');return result;
   }
   async connection(){
     await this.readyPromise;
@@ -313,6 +391,136 @@ export class CloudClient {
     else{m.localSays=[...(m.localSays||[]),{localId,speaker:'me',text:body,at:stamp()}].slice(-50);m.state='speaking';m.progress='에이전트들이 대표 의견을 검토하는 중';}
     m.updatedAt=stamp();await this.persist();return this.publicMeeting(m);
   }
+  // ---- AI review (품평회)
+  async listArtifacts(){
+    await this.readyPromise;if(!this.#credentials)return {needsPairing:true,briefs:[],images:[],videos:[]};
+    if(!this.machineKeys.has(TARGET.id))await this.connection();
+    const ls=async path=>{const r=await this.rpc(TARGET.id,'daemon.filesystem.listDirectory',{path,includeFiles:true,maxEntries:500},20000,{allowError:true});if(r?.ok===false)return null;return r.entries||[];};
+    const dirs=list=>(list||[]).filter(e=>/dir/i.test(e.type)&&!e.name.startsWith('.'));
+    const latest=list=>Math.max(0,...(list||[]).map(e=>Number(e.modified)||Date.parse(e.modified)||0));
+    const briefs=[],images=[],videos=[],sep='\\';
+    for(const base of ['01-strategy\\brief','01-contents\\marketing-brief','01-strategy\\marketing-brief']){
+      for(const brand of dirs(await ls(TARGET.path+sep+base)))for(const product of dirs(await ls(brand.path))){
+        const files=(await ls(product.path)||[]).filter(e=>!/dir/i.test(e.type)&&/\.md$/i.test(e.name));if(!files.length)continue;
+        briefs.push({id:'brief:'+product.path,kind:'brief',brand:brand.name,product:product.name,label:`${brand.name} · ${product.name} 마케팅 브리핑`,path:product.path,files:files.map(f=>f.name),modified:latest(files)});
+      }
+    }
+    for(const [kind,folder,out] of [['image','ad-images',images],['video','ad-videos',videos]]){
+      for(const brand of dirs(await ls(TARGET.path+sep+'02-contents'+sep+folder)))for(const product of dirs(await ls(brand.path))){
+        for(const ad of dirs(await ls(product.path)).filter(d=>/^ads?-/i.test(d.name)))out.push({id:kind+':'+ad.path,kind,brand:brand.name,product:product.name,label:`${brand.name} · ${product.name} · ${ad.name}`,path:ad.path,modified:Number(ad.modified)||Date.parse(ad.modified)||0});
+      }
+    }
+    const byNew=(a,b)=>b.modified-a.modified||a.label.localeCompare(b.label);
+    return {briefs:briefs.sort(byNew),images:images.sort(byNew),videos:videos.sort(byNew),root:TARGET.path};
+  }
+  async listArtifactFolder(path){
+    await this.readyPromise;if(!insideProject(path))throw Error('프로젝트 밖의 경로는 열 수 없습니다.');
+    if(!this.machineKeys.has(TARGET.id))await this.connection();
+    const out=[];const walk=async(dir,depth)=>{const r=await this.rpc(TARGET.id,'daemon.filesystem.listDirectory',{path:dir,includeFiles:true,maxEntries:200},20000,{allowError:true});if(r?.ok===false)throw Error('산출물 폴더를 읽지 못했습니다.');
+      for(const e of r.entries||[]){if(e.name.startsWith('.')||/desktop\.ini$/i.test(e.name))continue;if(/dir/i.test(e.type)){if(depth<2&&!/^(archive|references)$/i.test(e.name))await walk(e.path,depth+1);}else if(/\.(md|png|jpe?g|webp|gif|mp4|webm|mov)$/i.test(e.name))out.push({name:relPath(e.path).split('/').slice(-2).join('/'),path:e.path,size:e.size,type:/\.md$/i.test(e.name)?'text':/\.(mp4|webm|mov)$/i.test(e.name)?'video':'image'});}};
+    await walk(path,0);return {files:out.slice(0,60)};
+  }
+  async readArtifactFile(id,path){
+    await this.readyPromise;const r=this.reviews.get(id);if(!r)throw Error('품평회를 찾을 수 없습니다.');
+    if(!insideProject(path))throw Error('프로젝트 밖의 파일은 열 수 없습니다.');
+    const s=r.sessions[0];if(!s?.sessionId)throw Error('발표자 세션이 준비되면 화면에 표시합니다.');
+    await this.sessionKeyFor(s.sessionId);
+    const res=await this.rpc(s.sessionId,'readFile',{path},30000,{allowError:true});
+    if(!res?.success)throw Error(/too large/i.test(res?.error||'')?'파일이 커서(2.5MB 초과) 화면에 표시할 수 없습니다.':'파일을 읽지 못했습니다.');
+    return {content:res.content};
+  }
+  async createReview(body){
+    await this.readyPromise;
+    if(!/^[a-f0-9-]{36}$/i.test(body.requestId))throw Error('품평회 요청 ID가 올바르지 않습니다.');
+    const existing=this.reviews.get(body.requestId);if(existing)return this.publicReview(existing);
+    const active=[...this.reviews.values()].find(r=>!finalStates.has(r.state));if(active)throw Error('진행 중인 품평회가 있습니다. 이어서 보거나 세션을 종료한 뒤 시작해주세요.');
+    const topic=String(body.topic||'').trim(),ok=(m,e)=>this.models?.find(x=>x.id===m)?.efforts.includes(e);
+    if(!topic||topic.length>300)throw Error('발표 주제를 300자 이내로 입력해주세요.');
+    const items=(Array.isArray(body.items)?body.items:[]).filter(i=>REVIEW_KINDS[i?.kind]&&insideProject(i.path)).slice(0,8).map(i=>({kind:i.kind,label:String(i.label||'').slice(0,120),path:i.path}));
+    if(!items.length)throw Error('발표할 산출물을 하나 이상 선택해주세요.');
+    const reviewers=(Array.isArray(body.reviewers)?body.reviewers:[]).slice(0,6).map(v=>({perspective:REVIEW_PERSPECTIVES[v?.perspective]?v.perspective:'전략',model:v?.model,effort:v?.effort}));
+    if(!reviewers.length)throw Error('평가 에이전트를 한 명 이상 선택해주세요.');
+    if(!ok(body.presenter?.model,body.presenter?.effort)||reviewers.some(v=>!ok(v.model,v.effort)))throw Error('에이전트별 모델과 Effort를 확인해주세요.');
+    const r={id:body.requestId,kind:'review',topic,items,presenter:{model:body.presenter.model,effort:body.presenter.effort},reviewers,stage:'presenting',turn:0,state:'checking',progress:'발표자 세션을 준비하는 중',timeline:[],createdAt:stamp(),updatedAt:stamp(),ended:false,sessions:[]};
+    r.sessions.push(this.reviewSession(r,'presenter',-1,r.presenter,reviewPresenterPrompt(r)));
+    this.reviews.set(r.id,r);await this.persist();this.start(r.sessions[0],false);return this.publicReview(r);
+  }
+  reviewSession(r,role,index,cfg,prompt){
+    const nonce=crypto.randomUUID(),updatedAt=Date.now();
+    return {id:nonce,role,index,model:cfg.model,effort:cfg.effort,sessionId:null,state:'checking',attempts:0,expectExtra:0,createdAt:stamp(),
+      payload:{type:'spawn-in-directory',directory:TARGET.path,backendTarget:{kind:'builtInAgent',agentId:'codex'},agent:'codex',codexBackendMode:'appServer',experimentalCodexAcp:false,windowsRemoteSessionLaunchMode:'hidden',permissionMode:'default',permissionModeUpdatedAt:updatedAt,modelId:cfg.model,modelUpdatedAt:updatedAt,spawnNonce:nonce,connectedServices:{v:1,bindingsByServiceId:{'openai-codex':{source:'native'},openai:{source:'native'}}},sessionConfigOptionOverrides:{v:1,updatedAt,overrides:{reasoning_effort:{updatedAt,value:cfg.effort}}},pendingFirstInput:{text:prompt,localId:'dashboard-review-'+nonce}}};
+  }
+  publicReview(r){return {...r,sessions:r.sessions.map(({payload,...s})=>s)};}
+  async listReviews(){await this.readyPromise;return {reviews:[...this.reviews.values()].sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).map(({timeline,sessions,...rest})=>rest)};}
+  async readSessionRecords(sessionId){
+    const response=await this.request('/v2/sessions/'+encodeURIComponent(sessionId));const session=response.session||response;
+    if(session.encryptionMode==='plain')throw Error('평문 세션은 지원하지 않습니다.');
+    const key=await this.rowKey(session);this.sessionKeys.set(sessionId,key);
+    const page=await this.request('/v1/sessions/'+encodeURIComponent(sessionId)+'/messages?scope=main&limit=100');
+    const records=[];for(const x of page.messages||[])if(x.content?.t==='encrypted')records.push({...x,content:await decryptData(x.content.c,key)});
+    const agent=session.agentState?await decryptData(session.agentState,key):null;
+    return {records:records.sort((a,b)=>a.seq-b.seq),pending:Object.keys(agent?.requests||{}).length};
+  }
+  async pushToSession(s,text){
+    const key=await this.sessionKeyFor(s.sessionId),localId='dashboard-review-say-'+crypto.randomUUID();
+    const ciphertext=await encryptData({role:'user',content:{type:'text',text},meta:{sentFrom:'web',source:'web'}},key);
+    await this.request('/v2/sessions/'+encodeURIComponent(s.sessionId)+'/pending',{body:{localId,ciphertext,messageRole:'user'}});
+    s.expectExtra=(s.expectExtra||0)+1;s.ready=false;return localId;
+  }
+  async getReview(id){
+    await this.readyPromise;const r=this.reviews.get(id);if(!r)throw Error('품평회를 찾을 수 없습니다.');
+    if(finalStates.has(r.state))return this.publicReview(r);
+    try{
+      await this.connectSocket();let approval=false;const seen=new Set(r.timeline.map(u=>u.id));
+      for(const s of r.sessions){if(!s.sessionId||s.done)continue;
+        const {records,pending}=await this.readSessionRecords(s.sessionId);
+        const read=readTagged(records,s.role==='presenter'?['발표','결과']:['피드백']);
+        s.ready=read.ready&&read.extraUserTurns>=(s.expectExtra||0);s.failed=read.failed;if(pending)approval=true;
+        for(const l of read.lines){const uid=s.sessionId+':'+l.id;if(seen.has(uid))continue;seen.add(uid);
+          if(l.tag==='결과'){r.summary=l.text;continue;}
+          r.timeline.push({id:uid,speaker:s.role,reviewer:s.index,text:l.text,at:stamp()});}
+      }
+      r.timeline=r.timeline.slice(-400);
+      await this.advanceReview(r);
+      if(approval&&!finalStates.has(r.state)){r.state='awaiting_approval';r.progress='Happier에서 사용자 승인이 필요합니다.';}
+    }catch(e){r.state='disconnected';r.progress=e.message;}
+    r.updatedAt=stamp();await this.persist();return this.publicReview(r);
+  }
+  async advanceReview(r){
+    const presenter=r.sessions[0],N=r.reviewers.length;
+    if(!presenter.sessionId){r.state=presenter.state==='failed'||presenter.state==='uncertain'?'failed':'checking';r.progress=presenter.progress||'발표자 세션을 만드는 중';return;}
+    if(presenter.failed&&r.stage!=='closing'){r.state='failed';r.progress='발표자 Codex 세션이 오류를 보고했습니다.';return;}
+    if(r.stage==='presenting'){if(!presenter.ready){r.state='presenting';r.progress='발표자가 산출물을 발표하는 중';return;}r.stage='reviewing';r.turn=0;}
+    if(r.stage==='reviewing'){
+      while(r.turn<N){
+        let s=r.sessions.find(x=>x.role==='reviewer'&&x.index===r.turn);
+        if(!s){s=this.reviewSession(r,'reviewer',r.turn,r.reviewers[r.turn],reviewReviewerPrompt(r,r.turn));r.sessions.push(s);await this.persist();this.start(s,false);}
+        if(s.ready||s.failed||s.state==='failed'||s.state==='uncertain'){
+          if(s.failed||!s.sessionId)r.timeline.push({id:'skip:'+s.id,speaker:'system',text:`${r.reviewers[r.turn].perspective} 평가자 세션에 오류가 있어 다음 순서로 넘어갑니다.`,at:stamp()});
+          s.done=true;r.turn++;continue;}
+        r.state='reviewing';r.progress=`${r.reviewers[r.turn].perspective} 관점 평가자가 피드백하는 중 (${r.turn+1}/${N})`;return;
+      }
+      r.stage='answering';await this.pushToSession(presenter,reviewAnswerPrompt(r));presenter.ready=false;
+    }
+    if(r.stage==='answering'){if(!presenter.ready){r.state='answering';r.progress='발표자가 피드백에 답변하는 중';return;}r.stage='open';}
+    if(r.stage==='open'){r.state='open';r.progress=presenter.ready?'자유 토론 · 대표 의견을 기다리는 중':'발표자가 대표 의견에 답하는 중';return;}
+    if(r.stage==='closing'){
+      if(presenter.ready&&r.summary){r.state='completed';r.stage='closed';r.progress='발표와 피드백을 docs/에 정리했습니다.';r.finishedAt=stamp();}
+      else if(presenter.ready&&presenter.failed){r.state='failed';r.progress='정리 중 오류가 발생했습니다.';}
+      else{r.state='closing';r.progress='발표자가 품평 내용을 docs/에 정리하는 중';}
+    }
+  }
+  async sendToReview(id,text,kind='say'){
+    await this.readyPromise;const r=this.reviews.get(id);if(!r)throw Error('품평회를 찾을 수 없습니다.');
+    if(finalStates.has(r.state)||r.ended)throw Error('이미 종료 중이거나 끝난 품평회입니다.');
+    const presenter=r.sessions[0];if(!presenter.sessionId)throw Error('발표자 세션이 아직 준비되지 않았습니다.');
+    await this.connectSocket();
+    if(kind==='end'){await this.pushToSession(presenter,reviewEndPrompt(r));presenter.ready=false;r.ended=true;r.stage='closing';r.state='closing';r.progress='발표자에게 정리를 요청했습니다.';}
+    else{const body=String(text||'').trim();if(!body||body.length>2000)throw Error('의견은 2000자 이내로 입력해주세요.');
+      const current=r.stage==='reviewing'?r.sessions.find(x=>x.role==='reviewer'&&x.index===r.turn&&x.sessionId):null,target=current||presenter;
+      const localId=await this.pushToSession(target,'대표: '+body);r.timeline.push({id:localId,speaker:'me',text:body,at:stamp()});}
+    r.updatedAt=stamp();await this.persist();return this.publicReview(r);
+  }
   async retry(id){await this.readyPromise;const r=this.runs.get(id);if(!r)throw Error('실행 내역을 찾을 수 없습니다.');if(!finalStates.has(r.state))this.start(r,true);return this.publicRun(r);}
 }
 
@@ -333,6 +541,11 @@ const browserAPI={forUser(owner){if(!clients.has(owner))clients.set(owner,new Cl
     if(path.startsWith('retry/'))return client.retry(path.slice(6));
     if(path==='meetings')return body?client.createMeeting(body):client.listMeetings();
     const meeting=path.match(/^meetings\/([a-f0-9-]{36})(?:\/(say|end))?$/i);
+    if(path==='review-artifacts')return client.listArtifacts();
+    if(path==='review-folder')return client.listArtifactFolder(body?.path);
+    if(path==='reviews')return body?client.createReview(body):client.listReviews();
+    const review=path.match(/^reviews\/([a-f0-9-]{36})(?:\/(say|end|file))?$/i);
+    if(review)return review[2]==='say'?client.sendToReview(review[1],body?.text,'say'):review[2]==='end'?client.sendToReview(review[1],'','end'):review[2]==='file'?client.readArtifactFile(review[1],body?.path):client.getReview(review[1]);
     if(meeting)return meeting[2]==='say'?client.sendToMeeting(meeting[1],body?.text,'say'):meeting[2]==='end'?client.sendToMeeting(meeting[1],'','end'):client.getMeeting(meeting[1]);
     throw Error('지원하지 않는 Cloud 작업입니다.');
   }

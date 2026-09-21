@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "613731739866",
+    "project_id": "find-inc",
+    "storage_bucket": "find-inc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613731739866:android:ee04c1b9f5dbf04eb6dde3",
+        "android_client_info": {
+          "package_name": "com.example.dashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "613731739866-6ff2vv89q9v1djvphh2682jdp15u9u15.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBocy07YBiVjaL12Ym6PjcoQGWZBlXsP_s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "613731739866-6ff2vv89q9v1djvphh2682jdp15u9u15.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
