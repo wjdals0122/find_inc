@@ -5,6 +5,7 @@ const status = document.getElementById('auth-dashboard-status');
 let revision = 0;
 let signingOut = false;
 function returnToLogin() {
+  window.ContentsDrive?.clear();
   dashboard.hidden = true;
   dashboard.inert = true;
   document.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());

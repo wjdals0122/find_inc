@@ -11,7 +11,7 @@ const server = http.createServer((req,res)=>{
   if (!file.startsWith(root + path.sep)) { res.writeHead(403); res.end(); return; }
   fs.readFile(file,(err,data)=>{
     if(err){res.writeHead(404);res.end();return;}
-    const type = file.endsWith('.js') ? 'text/javascript' : file.endsWith('.png') ? 'image/png' : file.endsWith('.svg') ? 'image/svg+xml' : 'text/html; charset=utf-8';
+    const type = file.endsWith('.js') ? 'text/javascript' : file.endsWith('.css') ? 'text/css' : file.endsWith('.png') ? 'image/png' : file.endsWith('.svg') ? 'image/svg+xml' : 'text/html; charset=utf-8';
     res.writeHead(200,{'Content-Type':type});res.end(data);
   });
 });
@@ -91,6 +91,71 @@ async function signin(page, remember=false) {
     await signin(page,true);
     check('Successful auth reveals original deep-linked dashboard',await page.locator('#studio-login').isHidden()&&(await page.locator('#page-content').innerText()).includes('BMW'));
     await page.screenshot({path:dir+'/dashboard-desktop.png',fullPage:true});
+    // Drive integration: GIS and Drive responses are intercepted; no real Google consent or private files.
+    const ROOT = '1rRp5lRjKKM3KSQo3JqfHZq1J54EpovDO';
+    const driveRequests = [];
+    let revision = 1, unauthorized = false;
+    await ctx.route('https://accounts.google.com/gsi/client', r => r.fulfill({contentType:'text/javascript',body:`window.google={accounts:{oauth2:{hasGrantedAllScopes:()=>true,initTokenClient:options=>({requestAccessToken:()=>{window.__gisScope=options.scope;options.callback({access_token:'drive-test-memory-token',expires_in:window.__shortDriveExpiry?16:3600,scope:options.scope});}})}}};`}));
+    await ctx.route('https://www.googleapis.com/drive/v3/**', async r => {
+      driveRequests.push({url:r.request().url(),authorization:r.request().headers().authorization});
+      if (unauthorized) { await r.fulfill({status:401,body:'{}'}); return; }
+      const url=new URL(r.request().url());
+      if (url.searchParams.get('alt')==='media') {
+        await r.fulfill({contentType:url.pathname.endsWith('image-1')?'image/svg+xml':'video/mp4',body:url.pathname.endsWith('image-1')?'<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80"><rect width="120" height="80" fill="#93a9c5"/></svg>':'mock-video'});return;
+      }
+      const parent=url.searchParams.get('q')||'';
+      let body;
+      if(parent.includes(ROOT)) body=url.searchParams.has('pageToken')?{files:[{id:'video-1',name:'Campaign.mp4',mimeType:'video/mp4',size:'100'}]}:{nextPageToken:'second',files:[{id:'folder-1',name:'BMW',mimeType:'application/vnd.google-apps.folder'},{id:'doc-1',name:revision===1?'Brief.pdf':'Updated brief.pdf',mimeType:'application/pdf'}]};
+      else if(parent.includes('folder-1')) body={files:[{id:'image-1',name:'Product.svg',mimeType:'image/svg+xml',size:'120'},{id:'folder-2',name:'Final',mimeType:'application/vnd.google-apps.folder'}]};
+      else body={files:[{id:'deep-1',name:'Nested.txt',mimeType:'text/plain'}]};
+      await r.fulfill({contentType:'application/json',body:JSON.stringify(body)});
+    });
+    await page.locator('[data-stage="contents"]').click();
+    await page.locator('#drive-connect').waitFor();
+    await page.waitForFunction(()=>!!window.google?.accounts?.oauth2);
+    check('Contents starts disconnected',await page.locator('#drive-refresh').isDisabled());
+    await page.locator('.drive-workspace').screenshot({path:dir+'/contents-disconnected.png'});
+    await page.locator('#drive-connect').click();
+    await page.locator('[data-folder="folder-1"]').waitFor();
+    check('GIS requests the supplied full Drive scope',await page.evaluate(()=>window.__gisScope==='https://www.googleapis.com/auth/drive'));
+    check('Pagination and all descendants loaded',(await page.locator('.drive-summary').innerText()).includes('2개 폴더 · 4개 파일'));
+    check('Requests use Bearer authorization',driveRequests.length===4&&driveRequests.every(x=>x.authorization==='Bearer drive-test-memory-token'));
+    await page.locator('.drive-workspace').screenshot({path:dir+'/contents-desktop.png'});
+    await page.locator('[data-folder="folder-1"]').click();
+    await page.locator('[data-preview="image-1"]').click();
+    await page.locator('.drive-preview-body img').waitFor();
+    check('Private image preview uses a blob URL',(await page.locator('.drive-preview-body img').getAttribute('src')).startsWith('blob:'));
+    await page.locator('#drive-preview-close').click();
+    await page.locator('[data-folder="folder-2"]').click();
+    check('Nested folder contents visible',await page.locator('[data-preview="deep-1"]').isVisible());
+    await page.locator('#drive-search').fill('Campaign');
+    await page.locator('[data-preview="video-1"]').click();
+    await page.waitForFunction(()=>document.querySelector('.drive-preview-body video')||document.querySelector('.drive-preview-body').textContent.includes('브라우저'));
+    check('Video preview requested authenticated media',driveRequests.some(x=>x.url.includes('video-1?alt=media')));
+    await page.locator('#drive-preview-close').click();
+    revision=2;await page.locator('#drive-refresh').click();
+    await page.locator('#drive-refresh:enabled').waitFor();
+    await page.locator(`[data-folder="${ROOT}"]`).click();
+    check('Refresh retrieves changed files',await page.getByText('Updated brief.pdf',{exact:true}).isVisible());
+    await page.setViewportSize({width:390,height:844});
+    check('Contents fits mobile',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await page.locator('.drive-workspace').screenshot({path:dir+'/contents-mobile.png'});
+    check('Drive token never persisted',await page.evaluate(()=>![...Object.values(localStorage),...Object.values(sessionStorage)].some(x=>x.includes('drive-test-memory-token'))));
+    unauthorized=true;await page.locator('#drive-refresh').click();
+    await page.waitForFunction(()=>document.querySelector('#drive-refresh').disabled&&document.querySelector('.drive-status').textContent.includes('다시 연결'));
+    check('Unauthorized token clears files and requests reconnection',await page.locator('.drive-card').count()===0);
+    unauthorized=false;await page.locator('#drive-connect').click();await page.locator('[data-folder="folder-1"]').waitFor();
+    await page.locator('#drive-disconnect').click();
+    check('Disconnect clears Drive files',await page.locator('.drive-card').count()===0);
+    await page.evaluate(()=>window.__shortDriveExpiry=true);
+    await page.locator('#drive-connect').click();
+    await page.locator('[data-folder="folder-1"]').waitFor();
+    await page.waitForFunction(()=>document.querySelector('#drive-refresh').disabled&&document.querySelector('.drive-status').textContent.includes('만료'));
+    check('Expiry timer clears token and requires a new user connection',await page.locator('.drive-card').count()===0);
+
+    await page.setViewportSize({width:1440,height:1000});
+    await page.locator('[data-stage="strategy"]').click();
+
     await page.locator('#search-open').click();check('Existing search opens',await page.locator('#search-dialog').isVisible());await page.locator('[data-close="search-dialog"]').click();
     await page.locator('#source-open').click();check('Existing source viewer opens',await page.locator('#source-dialog').isVisible());await page.locator('[data-close="source-dialog"]').click();
     await page.reload();await page.waitForFunction(()=>document.body.dataset.authState==='authenticated');
