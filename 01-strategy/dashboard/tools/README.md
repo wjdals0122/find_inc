@@ -1,23 +1,22 @@
 # 링크 공유 썸네일
 
-`share-card.html`은 수집한 실제 상품·브랜드 이미지로 구성한 썸네일 원본이다. `build-share-images.cjs`가 Playwright로 원본을 렌더링해 아래 PNG를 만든다. 제품 형태나 로고를 생성형 이미지로 재작성하지 않는다.
+`share-card.html`은 사이트의 밝은 모드에 맞춰 FIND.INC를 크게 강조하고 수집한 브랜드명을 아래에 나열한 썸네일 원본이다. `build-share-images.cjs`가 Playwright로 원본을 렌더링해 아래 PNG를 만든다.
 
 | 파일 | 크기 | 용도 |
 | --- | --- | --- |
-| `../assets/share/dashboard-og-20261106.png` | 1200 × 630 | 기본 Open Graph 이미지, 큰 Twitter 카드 |
-| `../assets/share/dashboard-og-square-20261106.png` | 1200 × 1200 | 정사각형 Open Graph 대체 이미지 |
+| `../assets/share/dashboard-og-light-v2.png` | 1200 × 630 | 기본 Open Graph 이미지, 큰 Twitter 카드 |
+| `../assets/share/dashboard-og-square-light-v2.png` | 1200 × 1200 | 정사각형 Open Graph 대체 이미지 |
 
-가로 이미지의 핵심 문구와 두 상품은 중앙 630 × 630 영역 안에 배치된다. 플랫폼이 기본 이미지를 중앙 정사각형으로 자르더라도 핵심 내용이 유지된다. 정사각형 전용 이미지는 같은 구성을 확대해 배치했다. 플랫폼마다 이미지 선택·크롭 정책이 다르므로 두 이미지 중 어떤 것이 표시될지는 해당 플랫폼이 결정한다.
+가로 이미지의 FIND.INC와 브랜드 목록은 중앙 630 × 630 영역 안에 배치된다. 플랫폼이 기본 이미지를 중앙 정사각형으로 자르더라도 핵심 내용이 유지된다. 정사각형 전용 이미지는 같은 구성을 확대해 배치했다. 플랫폼마다 이미지 선택·크롭 정책이 다르므로 두 이미지 중 어떤 것이 표시될지는 해당 플랫폼이 결정한다.
 
-## 이미지 출처
+## 구성과 출처
 
-- BMW X5 G65: 대시보드 내장 `01-strategy/brand/BMW/더뉴 BMW X5 G65/assets/bmw-g65-exterior.webp`. 공식 출처와 권리 상태는 [수집 기록](../../brand/BMW/더뉴%20BMW%20X5%20G65/assets/sources.json)에 따른다.
-- BMW 로고: `01-strategy/brand/BMW/assets/BMW_dark.svg`. [브랜드 에셋 안내](../../brand/BMW/assets/README.md) 참조.
-- LG 퓨리케어: 대시보드 내장 `01-strategy/brand/LG전자/퓨리케어 공기청정기/assets/thumb-03.webp`.
-- LG 로고: 대시보드 내장 `01-strategy/brand/LG전자/assets/lg-logo-en-light.webp`.
+- 중앙: FIND.INC 워드마크, 파란색 점과 스튜디오 이름.
+- 하단: 기존에 조사·수집한 BMW, LG전자, 토스, 카카오, 신한은행의 브랜드명.
+- 배경: 사이트 밝은 모드의 회색·흰색 배경과 파란색 포인트.
 - 글꼴: 대시보드 내장 `studio/ui-font.woff`. 원본 대시보드의 글꼴 라이선스 기록을 유지한다.
 
-상품 이미지와 로고의 권리는 각 권리자에게 있다. 기존 수집 기록의 상업적 재사용 권한 미확인 상태를 그대로 유지하며, 이번 썸네일 생성으로 별도 이용 허가를 확보한 것으로 간주하지 않는다.
+이전 제품 사진 중심 썸네일은 사용자 피드백에 따라 이름 중심 구성으로 교체했다. 새 버전은 `light-v2` 이미지 주소를 사용하며 기존 파일은 이전 공유 링크와의 호환을 위해 남겨둔다.
 
 ## 다시 만들기
 
