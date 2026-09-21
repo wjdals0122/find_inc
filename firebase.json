@@ -17,12 +17,6 @@
       "template.html",
       "tools/**"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/login.html"
-      }
-    ],
     "headers": [
       {
         "source": "**",
@@ -40,6 +34,31 @@
             "value": "strict-origin-when-cross-origin"
           }
         ]
+      },
+      {
+        "source": "/robots.txt",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain; charset=utf-8"
+          }
+        ]
+      },
+      {
+        "source": "/sitemap.xml",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/xml; charset=utf-8"
+          }
+        ]
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/index.html",
+        "destination": "/",
+        "type": 301
       }
     ]
   }
