@@ -1,0 +1,69 @@
+{
+  "topic": "더뉴 BMW X5 G65",
+  "started_at": "2026-10-30T16:58:43+09:00",
+  "finished_at": "2026-10-30T08:03:45Z",
+  "timezone": "Asia/Seoul",
+  "scope": "국내 공식 정보 + 미국 2027년형 G65 실차 시승/가격 참고. G05·iX5 고유 제원 제외",
+  "destination": "../product.md",
+  "requested_new_count": null,
+  "count_unit": "독립 문서",
+  "counts": {
+    "new_complete": 5,
+    "reused": 0,
+    "partial": 3,
+    "failed": 5,
+    "assets": 3,
+    "long_term_owner_reviews": 0,
+    "expert_driving_reviews": 1,
+    "parked_experience_reviews": 1,
+    "comments_stored": 0,
+    "videos_analyzed": 0
+  },
+  "budget": {
+    "limit": 0,
+    "currency": "USD",
+    "spent_confirmed": 0,
+    "spent_estimated": 0,
+    "reserved_inflight": 0,
+    "cost_status": "사용자 지정 유료 실행 없음. Bright Data/Apify/Gemini 0회."
+  },
+  "cost_ledger": [],
+  "sources": [
+    "https://www.bmw.co.kr/ko/all-models/x-series/suv/bmw-x5.html",
+    "https://www.bmw.co.kr/ko/services/bmw-service-program/bmw-service-package.html",
+    "https://www.edmunds.com/car-news/2027-bmw-x5-ix5-first-drive-review.html",
+    "https://www.edmunds.com/car-news/2027-bmw-x5-hands-on-first-look.html",
+    "https://www.edmunds.com/bmw/x5/2027/consumer-reviews/",
+    "https://www.bmw.co.kr/ko/topics/owners/online-manual/bmw-driver-guide.html",
+    "https://www.bmw.co.kr/ko/services/bmw-service-program/bsi-warranty-ebrochure.html",
+    "https://www.reddit.com/r/BMWX5/comments/1xg0e1v/i_have_the_new_x5_for_this_entire_week_press_just/"
+  ],
+  "excluded_previous_evidence": [
+    "research/bmw-x5-g05-lci/2026-10-30: 세대 불일치"
+  ],
+  "skipped": [
+    {
+      "channel": "YouTube",
+      "reason": "Gemini 유료 분석 미실행; 후보를 실사용 근거로 쓰지 않음"
+    },
+    {
+      "channel": "German Car Forum",
+      "reason": "기존 후보, 이번 본문 검증 미실행"
+    },
+    {
+      "channel": "Bright Data / Apify",
+      "reason": "무료 실행 여부 미검증, 유료 실행 금지 조건 유지"
+    }
+  ],
+  "limitations": [
+    "국내 확정 가격·출시일·옵션표·설명서 및 계약상 보증 미확인",
+    "소유 후기와 기자 시승 구분",
+    "일반 BMW 보증을 G65 확정 보증으로 단정하지 않음"
+  ],
+  "delegation": {
+    "skill": ".agents/skills/team-lead/SKILL.md",
+    "agent": "g65_channels",
+    "scope": "다나와·네이버·겟차 필수 채널 독립 확인",
+    "file_mutations": false
+  }
+}

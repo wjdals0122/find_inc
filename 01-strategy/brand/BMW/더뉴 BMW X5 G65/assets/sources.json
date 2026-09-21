@@ -1,0 +1,50 @@
+[
+  {
+    "filename": "bmw-g65-exterior.webp",
+    "asset_url": "https://bmw.scene7.com/is/image/BMW/g65_ice_stage_dsk_fb?fmt=webp&qlt=80&wid=1024",
+    "source_page": "https://www.bmw.co.kr/ko/all-models/x-series/suv/bmw-x5.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "visual_checked": true,
+    "description": "외관 공식 이미지",
+    "note": "표·사양 텍스트 없음",
+    "long_image": false,
+    "segments_required": false,
+    "rights": "BMW 공식 홍보 이미지. 권리자 보유; 상업적 재사용 라이선스 미확인.",
+    "bytes": 9286,
+    "sha256": "e949f0cb47f00277d76e3cdede9d042c9a39ba62948b4a3532f36ddbdfb8d32f",
+    "image_width": 1024,
+    "image_height": 448
+  },
+  {
+    "filename": "bmw-g65-cockpit.webp",
+    "asset_url": "https://bmw.scene7.com/is/image/BMW/g65_ice_interior_cockpit_steering_wheel_dsk_fb?fmt=webp&qlt=80&wid=1024",
+    "source_page": "https://www.bmw.co.kr/ko/all-models/x-series/suv/bmw-x5.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "visual_checked": true,
+    "description": "HUD 및 계기 표시 예시",
+    "note": "48km/h·905km 등 표시값은 예시 화면이며 실측 제원으로 사용하지 않음",
+    "long_image": false,
+    "segments_required": false,
+    "rights": "BMW 공식 홍보 이미지. 권리자 보유; 상업적 재사용 라이선스 미확인.",
+    "bytes": 13740,
+    "sha256": "b7bb7c8898d6a402939927ab437051fbe28c335ee6f66a9a0216d4c123fb54cf",
+    "image_width": 1024,
+    "image_height": 448
+  },
+  {
+    "filename": "bmw-g65-phev.webp",
+    "asset_url": "https://bmw.scene7.com/is/image/BMW/g65_ice_phev_intro%3A16to7?fit=constrain%2C1&fmt=webp-alpha&wid=2560",
+    "source_page": "https://www.bmw.co.kr/ko/all-models/x-series/suv/bmw-x5.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "visual_checked": true,
+    "description": "PHEV 공식 이미지",
+    "note": "표·사양 텍스트 없음",
+    "long_image": false,
+    "segments_required": false,
+    "rights": "BMW 공식 홍보 이미지. 권리자 보유; 상업적 재사용 라이선스 미확인.",
+    "bytes": 68122,
+    "sha256": "82040d3cda8294899048698ead6e7e458aeb074d2868481bbf6d8c29c8b75d80",
+    "image_width": 1606,
+    "image_height": 700
+  }
+]

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "official-x5-g05",
+    "source_url": "https://www.bmw.co.kr/ko_KR/all-models/x-series/x5/x5-2025-g05.html",
+    "collected_at": "2026-10-30T16:40:10+09:00",
+    "collected_date": null,
+    "archived_at": "2026-10-30T16:40:10+09:00",
+    "original_text": "최대 출력  | 381마력 (280kW)\n가속력(0-100km/h)  | 5.4 초\n안전 최고 속도  | 250 km/h",
+    "text_kind": "verbatim_excerpt",
+    "locator": "모델 / 플러그인 하이브리드 / FAQ / 소비량 및 CO2 / 어시스턴트 및 연결성",
+    "provenance": "이번 무료 웹 조사에서 직접 확인",
+    "full_text_preserved": false
+  },
+  {
+    "id": "official-x5-finance-october",
+    "source_url": "https://www.bmw.co.kr/ko/finance/special-offer/financial-promotion/bmw-x-family-promotion.html",
+    "collected_at": "2026-10-30T16:40:10+09:00",
+    "collected_date": null,
+    "archived_at": "2026-10-30T16:40:10+09:00",
+    "original_text": "BMW X5 xDrive 30d M 스포츠 패키지\n차량가격 12,430만 원",
+    "text_kind": "verbatim_excerpt",
+    "locator": "프로모션 적용 기간 / X5 차량가격",
+    "provenance": "이번 무료 웹 조사에서 직접 확인",
+    "full_text_preserved": false
+  },
+  {
+    "id": "getcha-9128",
+    "source_url": "https://web.getcha.kr/owners-review/BMW/87/9128",
+    "collected_at": null,
+    "collected_date": "2026-10-30",
+    "archived_at": "2026-10-30T16:40:10+09:00",
+    "original_text": "부족함 없이 치고 나갑니다.",
+    "text_kind": "verbatim_excerpt",
+    "locator": "총평 / 성능 / 디자인 / 옵션 / 유지관리",
+    "provenance": "이전 대화에서 직접 확인한 원문 재사용",
+    "full_text_preserved": false
+  },
+  {
+    "id": "getcha-8791",
+    "source_url": "https://web.getcha.kr/owners-review/BMW/87/8791",
+    "collected_at": null,
+    "collected_date": "2026-10-30",
+    "archived_at": "2026-10-30T16:40:10+09:00",
+    "original_text": "회사 출퇴근 거리가 왕복 100km입니다.",
+    "text_kind": "verbatim_excerpt",
+    "locator": "총평 / 성능 / 디자인 / 옵션 / 유지관리",
+    "provenance": "이전 대화에서 직접 확인한 원문 재사용",
+    "full_text_preserved": false
+  },
+  {
+    "id": "getcha-8649",
+    "source_url": "https://web.getcha.kr/owners-review/BMW/87/8649",
+    "collected_at": null,
+    "collected_date": "2026-10-30",
+    "archived_at": "2026-10-30T16:40:10+09:00",
+    "original_text": "1년간 기계적인 문제는 전혀 없었고",
+    "text_kind": "verbatim_excerpt",
+    "locator": "총평 / 옵션 / 유지관리",
+    "provenance": "이전 대화에서 직접 확인한 원문 재사용",
+    "full_text_preserved": false
+  },
+  {
+    "id": "getcha-8159",
+    "source_url": "https://web.getcha.kr/owners-review/BMW/87/8159",
+    "collected_at": null,
+    "collected_date": "2026-10-30",
+    "archived_at": "2026-10-30T16:40:10+09:00",
+    "original_text": "주유소를 자주 안 가도 된다",
+    "text_kind": "verbatim_excerpt",
+    "locator": "총평 / 성능",
+    "provenance": "이전 대화에서 직접 확인한 원문 재사용",
+    "full_text_preserved": false
+  },
+  {
+    "id": "getcha-7820",
+    "source_url": "https://web.getcha.kr/owners-review/BMW/87/7820",
+    "collected_at": null,
+    "collected_date": "2026-10-30",
+    "archived_at": "2026-10-30T16:40:10+09:00",
+    "original_text": "매우 정숙하고 부드럽습니다.",
+    "text_kind": "verbatim_excerpt",
+    "locator": "총평 / 성능 / 디자인 / 옵션",
+    "provenance": "이전 대화에서 직접 확인한 원문 재사용",
+    "full_text_preserved": false
+  }
+]

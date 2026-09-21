@@ -1,0 +1,35 @@
+{
+  "type": "analyst_scenario_not_forecast",
+  "basis": "미국 공식 발표 기본MSRP / 2026 G05 초기MSRP; 국내 G05 출고가에 동일 인상률 적용. 옵션·세금·환율 차이 고정 가정.",
+  "fx_conversion_performed": false,
+  "calculations": [
+    {
+      "model": "G65 40 xDrive, 기존 xLine 대응 가정",
+      "base": 125200000,
+      "ratio": 1.0314735336194563,
+      "calculated_krw": 129140486.40915592,
+      "rounded_to_10000": 129140000
+    },
+    {
+      "model": "G65 40 xDrive, 기존 M Sport 대응 가정",
+      "base": 131900000,
+      "ratio": 1.0314735336194563,
+      "calculated_krw": 136051359.0844063,
+      "rounded_to_10000": 136050000
+    },
+    {
+      "model": "G65 50e xDrive, 기존 xLine 대응 가정",
+      "base": 132500000,
+      "ratio": 1.0305851063829787,
+      "calculated_krw": 136552526.59574467,
+      "rounded_to_10000": 136550000
+    },
+    {
+      "model": "G65 50e xDrive, 기존 M Sport Pro 대응 가정",
+      "base": 139200000,
+      "ratio": 1.0305851063829787,
+      "calculated_krw": 143457446.80851063,
+      "rounded_to_10000": 143460000
+    }
+  ]
+}

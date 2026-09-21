@@ -1,0 +1,56 @@
+﻿{
+    "topic":  "더 뉴 BMW X5",
+    "scope":  "G05 부분변경형 한국 공식 정보 + 이전 차주 후기 5건 재사용; 무료 웹 조사만",
+    "requested_new_count":  null,
+    "count_unit":  "독립 출처 문서",
+    "time_window":  null,
+    "languages":  [
+                      "ko"
+                  ],
+    "regions":  [
+                    "KR"
+                ],
+    "started_at":  "2026-10-30T16:38:41+09:00",
+    "evidence_archived_at":  "2026-10-30T16:40:10+09:00",
+    "finished_at":  "2026-10-30T16:42:41.7967743+09:00",
+    "timezone":  "Asia/Seoul",
+    "existing_collection_paths":  [
+
+                                  ],
+    "reused_from":  "현재 대화의 이전 원문 조회 결과; 로컬 기존 수집물 없음",
+    "deduplication_status":  "기존 대화 후기 5건의 원문 ID 기준 중복 제거. 신규 후기 건수로 세지 않음.",
+    "counts":  {
+                   "new_complete":  2,
+                   "reused":  5,
+                   "partial":  1,
+                   "failed":  4,
+                   "skipped":  2,
+                   "comments":  0,
+                   "replies":  0,
+                   "analyzed_videos":  0
+               },
+    "count_notes":  "complete는 저장한 핵심 사실·발췌 범위의 확인을 의미. 전문·전체 트림 가격표를 확보했다는 의미 아님. partial/failed는 failures 항목 수이며 records와 별도 집계.",
+    "budget":  {
+                   "limit":  0,
+                   "currency":  "USD",
+                   "spent_confirmed":  0,
+                   "spent_estimated":  0,
+                   "reserved_inflight":  0,
+                   "remaining_conservative":  0,
+                   "pricing_checked_at":  null,
+                   "cost_status":  "이번 작업 Bright Data/Apify/Gemini 호출 0; 이전 대화의 Apify 비용은 이번 작업 비용에 포함하지 않으며 알 수 없음"
+               },
+    "cost_ledger":  [
+
+                    ],
+    "preservation":  "원문 전체 대신 짧은 인용과 구조화한 사실·요약·직접 출처 보존",
+    "tools_used":  [
+                       "web.run",
+                       "local filesystem"
+                   ],
+    "tools_not_executed":  [
+                               "Bright Data",
+                               "Apify",
+                               "watch Gemini"
+                           ]
+}

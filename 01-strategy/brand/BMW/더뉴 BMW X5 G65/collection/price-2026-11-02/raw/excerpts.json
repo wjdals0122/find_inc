@@ -1,0 +1,90 @@
+[
+  {
+    "source_record_id": "bmw-us-g65-price",
+    "source_url": "https://newsroom.bmwgroup.com/americas/the-new-bmw-x5-and-ix5/",
+    "collected_at": "2026-11-02T09:53:45+09:00",
+    "verified_at": "2026-11-02T09:53:45+09:00",
+    "locator": "market rollout and MSRP, paragraph beginning The 2027 BMW X5 40",
+    "original_text": "Each requires a destination and handling charge of $1,450.",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false,
+    "reason": "저작권을 고려하여 짧은 발췌만 보존"
+  },
+  {
+    "source_record_id": "bmw-kr-g65-status",
+    "source_url": "https://www.bmw.co.kr/ko/all-models/x-series/suv/bmw-x5.html",
+    "collected_at": "2026-11-02T09:53:45+09:00",
+    "verified_at": "2026-11-02T09:53:45+09:00",
+    "locator": "FAQ: BMW X5는 언제 출시되나요?",
+    "original_text": "출시 일정에 대한 자세한 내용은 추후 공지될 예정입니다.",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false,
+    "reason": "저작권을 고려하여 짧은 발췌만 보존"
+  },
+  {
+    "source_record_id": "edmunds-g65-prices",
+    "source_url": "https://www.edmunds.com/car-news/2027-bmw-x5-ix5-first-drive-review.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "verified_at": "2026-11-02T09:53:45+09:00",
+    "locator": "Coming soon",
+    "original_text": "with a base price of $73,550.",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false,
+    "reason": "저작권을 고려하여 짧은 발췌만 보존"
+  },
+  {
+    "source_record_id": "bmwblog-options",
+    "source_url": "https://www.bmwblog.com/2026/07/24/2027-bmw-x5-configurator-live-united-states/",
+    "collected_at": "2026-11-02T09:53:45+09:00",
+    "verified_at": "2026-11-02T09:53:45+09:00",
+    "locator": "For now / Fully Loaded / It Costs Over $100,000",
+    "original_text": "Once BMW allows customers to untick the box, the price will drop by $650.",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false,
+    "reason": "저작권을 고려하여 짧은 발췌만 보존"
+  },
+  {
+    "source_record_id": "ucar-korean-conversion",
+    "source_url": "https://v.daum.net/v/G1YC1inQi8",
+    "collected_at": "2026-11-02T09:53:45+09:00",
+    "verified_at": "2026-11-02T09:53:45+09:00",
+    "locator": "기본형에 옵션을 넣었더니 / 국내 가격과 출시 일정은 아직 공식 미정입니다",
+    "original_text": "국내 판매 사양 역시 미국 모델과 다르게 구성될 가능성이 있습니다.",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false,
+    "reason": "저작권을 고려하여 짧은 발췌만 보존"
+  },
+  {
+    "source_record_id": "trendro-low-estimate",
+    "source_url": "https://v.daum.net/v/2zqNDupXIF",
+    "collected_at": "2026-11-02T09:53:45+09:00",
+    "verified_at": "2026-11-02T09:53:45+09:00",
+    "locator": "문제는 타이밍과 가격이다",
+    "original_text": "신형 G65의 한국 예상 가격은 9,000만원~12,000만원대로 전망된다.",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false,
+    "reason": "저작권을 고려하여 짧은 발췌만 보존"
+  },
+  {
+    "source_record_id": "carfia-g05-baseline",
+    "source_url": "https://carfia.co.kr/new-car/promotion/bmw/x5",
+    "collected_at": "2026-11-02T09:53:45+09:00",
+    "verified_at": "2026-11-02T09:53:45+09:00",
+    "locator": "프로모션 정보 표, LCI 26년식 출고가 열",
+    "original_text": "X5 xD 40i xLine 7인승 LCI 26년식",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false,
+    "reason": "저작권을 고려하여 짧은 발췌만 보존"
+  },
+  {
+    "source_record_id": "us-dealer-g05-baseline",
+    "source_url": "https://www.bmwofweststlouis.com/2026-x5-trim-levels/",
+    "collected_at": "2026-11-02T09:53:45+09:00",
+    "verified_at": "2026-11-02T09:53:45+09:00",
+    "locator": "X5 xDrive40i / X5 xDrive50e MSRP bullets",
+    "original_text": "MSRP: Starting at $69,900",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false,
+    "reason": "저작권을 고려하여 짧은 발췌만 보존"
+  }
+]

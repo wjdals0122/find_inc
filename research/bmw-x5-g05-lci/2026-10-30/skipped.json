@@ -1,0 +1,20 @@
+[
+  {
+    "source_url": null,
+    "status": "skipped",
+    "collector": "Bright Data / Apify",
+    "missing_scope": "신규 게시물·댓글·답글 및 원글 관계",
+    "reason": "사용자가 유료 실행 없이 진행 선택; 무료라고 검증되지 않은 공급자 실행을 하지 않음",
+    "next_condition": "무료 실행이 확인되거나 별도 유료 실행 승인"
+  },
+  {
+    "source_url": "https://www.youtube.com/watch?v=Ww56l3hqo9Q",
+    "status": "skipped",
+    "collector": "watch / Gemini",
+    "missing_scope": "영상 말·화면·원문 인용·원본 시각",
+    "reason": "사용자가 유료 실행 없이 진행 선택; Gemini 분석 미실행",
+    "next_condition": "Gemini 비용 승인 또는 무료 사용 가능 조건 확인",
+    "candidate_title": "하이브리드로 더욱 완벽해졌다! BMW X5 50e 시승기",
+    "provenance": "이전 대화 웹검색에서 찾은 후보; 영상은 보지 않음"
+  }
+]

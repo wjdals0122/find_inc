@@ -1,0 +1,56 @@
+{
+  "topic": "BMW X5 G65 뉴스 기반 가격 보완",
+  "scope": "해외 공식가격, 국내 뉴스 환산/전망 구분 및 조건부 한국 가격 시나리오",
+  "requested_new_count": null,
+  "count_unit": "독립 본문",
+  "time_window": "확인일 2026-11-02",
+  "languages": [
+    "ko",
+    "en"
+  ],
+  "regions": [
+    "KR",
+    "US"
+  ],
+  "sources": [
+    "https://newsroom.bmwgroup.com/americas/the-new-bmw-x5-and-ix5/",
+    "https://www.bmw.co.kr/ko/all-models/x-series/suv/bmw-x5.html",
+    "https://www.edmunds.com/car-news/2027-bmw-x5-ix5-first-drive-review.html",
+    "https://www.bmwblog.com/2026/07/24/2027-bmw-x5-configurator-live-united-states/",
+    "https://v.daum.net/v/G1YC1inQi8",
+    "https://v.daum.net/v/2zqNDupXIF",
+    "https://carfia.co.kr/new-car/promotion/bmw/x5",
+    "https://www.bmwofweststlouis.com/2026-x5-trim-levels/"
+  ],
+  "started_at": "2026-11-02T09:53:45+09:00",
+  "finished_at": "2026-11-02T09:56:10+09:00",
+  "timezone": "Asia/Seoul",
+  "existing_collection_paths": [
+    "../records.jsonl",
+    "../../product.md"
+  ],
+  "deduplication_status": "정규 URL 단위; G05 비교 자료 구분; Edmunds 기존 재검증",
+  "counts": {
+    "new_complete": 7,
+    "reused": 1,
+    "partial": 2,
+    "failed": 2,
+    "unreadable": 0
+  },
+  "budget": {
+    "limit": 0,
+    "currency": "USD",
+    "spent_confirmed": 0,
+    "spent_estimated": 0,
+    "reserved_inflight": 0,
+    "remaining_conservative": 0,
+    "pricing_checked_at": null,
+    "cost_status": "무료 웹 조사 경로만 사용; 별도 유료 공급자 실행0회"
+  },
+  "cost_ledger": [],
+  "limitations": [
+    "PDF 텍스트 추출만 성공, 시각 확인 미완료. HTML 교차확인 사용.",
+    "한국 G65 공식가격 미확인",
+    "시나리오는 미국 초기 MSRP 인상률 단순 이식이며 환율환산/실거래 예상가 아님"
+  ]
+}

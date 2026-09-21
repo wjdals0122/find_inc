@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product"
+  short_description: "상품 조사 사이트 탐색부터 근거 수집·문서 작성·수정까지 진행"
+  default_prompt: "Use $product to research this product, preserve sources and assets, and create or update product.md within the scope and budget I specify."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crawler"
+  short_description: "웹·상품·영상·댓글의 원문과 출처를 예산 안에서 수집하고 보존"
+  default_prompt: "Use $crawler to collect evidence on this topic within my budget, reuse existing material, and save original text, sources, timestamps, and collection failures."
