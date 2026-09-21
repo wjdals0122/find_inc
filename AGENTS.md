@@ -15,3 +15,4 @@
 - 스킬 산출물 저장: `/brand`, `/product`, `/competitor`, `/customer`, `/marketing-brief`, `/strategy-dashboard`의 산출물을 만들거나 수정하면 [GitHub Push 절차](docs/guides/skill-output-git-push.md)에 따라 커밋·push하고 원격 반영을 확인한다.
 - 클라우드 작업: [작업 경로와 프로젝트 스킬](docs/guides/cloud-workspace.md)에 따라 `/workspace/` 안의 프로젝트를 기준으로 작업하고, 요청한 스킬은 프로젝트의 `.agents/skills/`에서 찾아 읽고 적용한다.
 - 브랜치 운영: [브랜치 운영 기준](docs/guides/cloud-workspace.md#브랜치-운영)에 따라 가능한 한 최신 `main`에서 열람·작업하고, 작업량이 많을 때에만 별도 브랜치를 사용한다.
+- 스킬 완료 알림: 여섯 전략 스킬이 성공하면 [완료 알림 가이드](docs/guides/skill-result-notifications.md)에 따라 핵심 결과와 산출물을 카카오톡, 슬랙과 SenderKit 이메일로 보낸다.
