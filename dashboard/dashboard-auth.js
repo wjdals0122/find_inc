@@ -6,6 +6,8 @@ let revision = 0;
 let signingOut = false;
 function returnToLogin() {
   window.ContentsDrive?.clear();
+  window.OperationMetrics?.clear();
+  window.SkillsPanel?.clear();
   dashboard.hidden = true;
   dashboard.inert = true;
   document.querySelectorAll('dialog[open]').forEach(dialog => dialog.close());

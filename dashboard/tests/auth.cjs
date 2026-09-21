@@ -91,6 +91,137 @@ async function signin(page, remember=false) {
     await signin(page,true);
     check('Successful auth reveals original deep-linked dashboard',await page.locator('#studio-login').isHidden()&&(await page.locator('#page-content').innerText()).includes('BMW'));
     await page.screenshot({path:dir+'/dashboard-desktop.png',fullPage:true});
+    // Skill launcher transport is mocked; these checks never create agent jobs.
+    let skillsPaired=true,skillsPairApproved=false,pairStarts=0,skillsReady=false,skillsRun=null,skillsRequest=null,skillConnectionChecks=0,skillsOffline=false;
+    await ctx.route('**/happier-cloud.js',route=>route.fulfill({contentType:'text/javascript',body:`window.HappierCloud={clear(){},async api(owner,path,body){const response=await fetch('/__test/happier/'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','X-Test-Owner':owner},body:body?JSON.stringify(body):undefined});if(!response.ok)throw Error('Cloud connection unavailable');return response.json();}};`}));
+    await ctx.route('**/__test/happier/**',async route=>{
+      if(skillsOffline)return route.fulfill({status:404,body:'{}'});
+      const name=new URL(route.request().url()).pathname.split('/__test/happier/')[1];
+      let body;
+      if(name==='bootstrap')body={csrf:'test-csrf',skills:[{id:'brand',label:'브랜드 조사',description:'브랜드 문서 생성'},{id:'product',label:'상품 조사',description:'상품 문서 생성'}],models:[{id:'test-a',label:'Test A',efforts:['low','medium'],defaultEffort:'medium'},{id:'test-b',label:'Test B',efforts:['high'],defaultEffort:'high'}],defaults:{model:'test-a',effort:'medium'}};
+      else if(name==='pair/start'){pairStarts++;body={url:'https://app.happier.dev/terminal/connect#key=test',expiresAt:new Date(Date.now()+600000).toISOString()};}
+      else if(name==='pair/status'){if(skillsPairApproved){skillsPaired=true;skillsReady=true;}body={state:skillsPairApproved?'authorized':'pending'};}
+      else if(name==='connection'){skillConnectionChecks++;body=!skillsPaired?{ready:false,needsPairing:true,checks:{}}:{ready:skillsReady,machine:'Test machine',checks:{registered:skillsReady,daemonReady:skillsReady}};}
+      else if(name==='history')body={runs:skillsRun?[skillsRun]:[]};
+      else if(name==='runs'&&route.request().method()==='POST'){
+        skillsRequest=route.request().postDataJSON();
+        check('Cloud dispatch is scoped to the signed-in dashboard owner',route.request().headers()['x-test-owner']==='test-ui-user');
+        skillsRun={id:skillsRequest.requestId,label:'브랜드 조사',model:skillsRequest.model,effort:skillsRequest.effort,createdAt:new Date().toISOString(),state:'creating',sessionId:null,progress:'세션 생성 중',result:''};body=skillsRun;
+      }else if(name.startsWith('runs/'))body=skillsRun;
+      else return route.fulfill({status:404,body:'{}'});
+      await route.fulfill({contentType:'application/json',body:JSON.stringify(body)});
+    });
+    await page.reload();await page.waitForFunction(()=>document.body.dataset.authState==='authenticated');
+    check('AI meeting topic input and button sit in the dashboard top bar',await page.locator('.hero-actions #aim-topic').isVisible()&&(await page.locator('.hero-actions #aim-open').innerText()).trim()==='AI 회의 열기');
+    check('Skill launcher is a fixed island outside the header',await page.locator('#skills-island').evaluate(e=>getComputedStyle(e).position==='fixed')&&await page.locator('.hero-actions #skills-open').count()===0);
+    await page.locator('#skills-open').hover();
+    await page.locator('[data-island-skill="product"]').waitFor({state:'visible'});
+    check('Hover expands project skills without launching or checking a session',await page.locator('#skills-open').getAttribute('aria-expanded')==='true'&&skillConnectionChecks===0&&await page.locator('#skills-dialog').count()===0);
+    await page.locator('[data-island-skill="product"]').hover();
+    check('Moving from island icon to list keeps the shelf open',await page.locator('#skills-island').evaluate(e=>e.classList.contains('is-expanded')));
+    await page.locator('#skills-open').focus();await page.keyboard.press('Escape');
+    check('Escape closes the island and removes links from tab order',await page.locator('#skills-open').getAttribute('aria-expanded')==='false'&&await page.locator('#skills-island-preview').evaluate(e=>e.inert));
+    await page.mouse.move(30,300);await page.locator('#skills-open').hover();
+    await page.locator('[data-island-skill="product"]').waitFor({state:'visible'});
+    await page.locator('#skills-island-preview').screenshot({path:dir+'/skills-island-desktop.png'});
+    await page.locator('[data-island-skill="product"]').click();
+    await page.waitForFunction(()=>document.querySelector('.sk-connection strong')?.textContent==='연결 확인 필요');
+    check('Island skill opens the existing dialog with that skill selected',(await page.locator('.sk-selected-head h3').innerText())==='상품 조사');
+    await page.locator('[data-skill="brand"]').click();
+    check('Skill execution disabled until registered daemon is ready',await page.locator('.sk-primary').isDisabled());
+    skillsReady=true;await page.locator('.sk-check').click();
+    await page.locator('.sk-primary:enabled').waitFor();
+    await page.locator('#skill-instruction').fill('Create a document');
+    await page.locator('#skill-model').selectOption('test-b');
+    check('Effort options follow selected model',await page.locator('#skill-effort option').count()===1&&await page.locator('#skill-effort').inputValue()==='high');
+    check('Skill instructions survive configuration changes',await page.locator('#skill-instruction').inputValue()==='Create a document');
+    for(const width of [390,320]){
+      await page.setViewportSize({width,height:844});
+      check('Skills popup fits '+width,await page.locator('#skills-dialog').evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+      check('Skills header fits '+width,await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    }
+    await page.setViewportSize({width:1440,height:1000});
+    await page.locator('#skills-dialog').screenshot({path:dir+'/skills-desktop.png'});
+    await page.locator('#skill-apply').uncheck();await page.locator('.sk-primary').click();
+    await page.locator('.sk-run-detail').waitFor();
+    check('No running label before a session id is returned',(await page.locator('.sk-state').innerText())==='세션 생성 중'&&(await page.locator('.sk-run-meta').innerText()).includes('발급 대기'));
+    check('Skill request includes selected model, effort and UUID',skillsRequest.model==='test-b'&&skillsRequest.effort==='high'&&skillsRequest.requestId.length===36);
+    skillsRun={...skillsRun,state:'completed',sessionId:'test-session-id',result:'Created result <script>window.bad=true</script>'};
+    await page.locator('[data-view="history"]').click();await page.locator('[data-run]').click();
+    check('Skills history retains session and completed result',(await page.locator('.sk-result').innerText()).includes('Created result')&&(await page.locator('.sk-run-meta').innerText()).includes('test-session-id'));
+    check('Skill result text is escaped',await page.evaluate(()=>!window.bad));
+    await page.locator('.sk-close').click();await page.locator('#skills-open').click();
+    await page.locator('.sk-run-detail').waitFor();check('Skill results survive closing and reopening popup',(await page.locator('.sk-result').innerText()).includes('Created result'));
+    await page.locator('.sk-close').click();
+    // Unpaired browser: 스킬 실행 shows the Happier approval button, then resumes the same run after approval.
+    skillsPaired=false;skillsReady=false;skillsRun=null;skillsRequest=null;await page.evaluate(()=>window.SkillsPanel.clear());
+    await page.locator('#skills-open').click();await page.locator('[data-skill="brand"]').click();
+    await page.waitForFunction(()=>document.querySelector('.sk-notice')?.textContent.includes('승인이 필요'));
+    check('Unpaired browser shows no approval link before 스킬 실행',await page.locator('.sk-pair-link').count()===0&&await page.locator('.sk-cloud-connect').count()===0);
+    await page.locator('#skill-instruction').fill('Approval flow');await page.locator('.sk-primary').click();
+    await page.locator('.sk-pair-link').waitFor();
+    check('스킬 실행 shows Happier web approval button',(await page.locator('.sk-pair-link').innerText()).includes('Happier 웹에서 승인')&&pairStarts===1&&skillsRequest===null);
+    skillsPairApproved=true;await page.locator('.sk-run-detail').waitFor({timeout:15000});
+    check('Approved pairing resumes the run without choosing PC or folder',skillsRequest?.instruction==='Approval flow'&&skillsRequest.skill==='brand'&&!('machine' in skillsRequest)&&!('directory' in skillsRequest));
+    await page.locator('.sk-close').click();skillsRun=null;skillsRequest=null;
+    await page.locator('#skills-open').click();await page.locator('[data-view="new"]').click();await page.locator('.sk-primary:enabled').waitFor();
+    await page.locator('#skill-instruction').fill('Already approved');await page.locator('.sk-primary').click();await page.locator('.sk-run-detail').waitFor();
+    check('Already approved browser skips the approval step',pairStarts===1&&await page.locator('.sk-pair-link').count()===0&&skillsRequest?.instruction==='Already approved');
+    await page.locator('.sk-close').click();
+    // A static Hosting deployment still exposes the catalog, but cannot run jobs.
+    skillsOffline=true;await page.evaluate(()=>window.SkillsPanel.clear());
+    await page.mouse.move(30,300);await page.locator('#skills-open').hover();
+    await page.waitForFunction(()=>document.querySelectorAll('[data-island-skill]').length>2);
+    check('Static Hosting can display the public skill catalog without a runtime API',await page.locator('[data-island-skill]').count()===JSON.parse(fs.readFileSync(path.join(root,'skills-catalog.json'),'utf8')).skills.length);
+    await page.locator('#skills-open').click();
+    await page.waitForFunction(()=>document.querySelector('.sk-connection strong')?.textContent==='연결 확인 필요');
+    check('Static Hosting never claims runtime connectivity or allows execution',await page.locator('.sk-primary').isDisabled()&&await page.locator('#skill-model').isDisabled());
+    await page.locator('.sk-close').click();skillsOffline=false;
+    // Isolated fixture for zero/missing-date behavior. No private files needed.
+    const metricsSnapshot = {exported_at:'2026-11-17T07:36:45Z',rows:[10,11,12,13,14].flatMap(day=>['views','estimatedMinutesWatched'].map(metric_name=>({channel:'youtube',account_id:'test-channel',metric_date:`2026-11-${day}`,metric_name,metric_value:0,collected_at:'2026-11-17T06:54:42Z'})))};
+    let metricsRequests=0, metricsFail=false;
+    await ctx.route('**/api/channel-metrics?**', async r => {
+      metricsRequests++;
+      if(metricsFail) return r.fulfill({status:502,contentType:'application/json',body:'{}'});
+      const q=new URL(r.request().url()).searchParams;
+      return r.fulfill({contentType:'application/json',body:JSON.stringify({...metricsSnapshot,mode:'snapshot',fetched_at:new Date().toISOString(),rows:metricsSnapshot.rows.filter(x=>x.metric_date>=q.get('start')&&x.metric_date<=q.get('end'))})});
+    });
+    await page.locator('[data-stage="operation"]').click();
+    await page.waitForFunction(()=>document.querySelector('.op-workspace')?.getAttribute('aria-busy')==='false');
+    await page.locator('.op-date-fields input[name=start]').fill('2026-11-10');
+    await page.locator('.op-date-fields input[name=end]').fill('2026-11-16');
+    await page.locator('.op-apply').click();
+    await page.waitForFunction(()=>document.querySelector('.op-metric-top')?.textContent.includes('5/7'));
+    check('Operation displays stored zero separately from missing days',(await page.locator('.op-number').first().innerText()).includes('0')&&await page.locator('.op-day-strip .collected').count()===5);
+    check('Operation labels snapshot source',(await page.locator('.op-notice').innerText()).includes('스냅샷'));
+    await page.locator('.op-workspace').screenshot({path:dir+'/operation-desktop.png'});
+    await page.locator('[data-channel="instagram"]').click();
+    check('Instagram missing data is not presented as zero',(await page.locator('.op-number').first().innerText()).includes('—'));
+    await page.locator('[data-channel="google-search"]').click();
+    check('Search Console metrics use correct names',(await page.locator('.op-metrics').innerText()).includes('노출수')&&(await page.locator('.op-metrics').innerText()).includes('클릭수'));
+    await page.locator('[data-channel="youtube"]').click();
+    const beforeRefresh=metricsRequests;await page.locator('.op-refresh').click();
+    await page.waitForFunction(()=>document.querySelector('.op-workspace')?.getAttribute('aria-busy')==='false');
+    check('Operation refresh makes a new authenticated data request',metricsRequests>beforeRefresh);
+    await page.locator('[data-period="14"]').click();
+    await page.waitForFunction(()=>document.querySelector('.op-workspace')?.getAttribute('aria-busy')==='false');
+    check('Operation period controls update coverage denominator',(await page.locator('.op-metric-top').first().innerText()).includes('5/14'));
+    await page.locator('[data-period="7"]').click();
+    await page.waitForFunction(()=>document.querySelector('.op-workspace')?.getAttribute('aria-busy')==='false');
+    await page.setViewportSize({width:390,height:844});
+    if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))console.log('Operation overflow',await page.evaluate(()=>[...document.querySelectorAll('body *')].filter(e=>{const b=e.getBoundingClientRect();return b.width>0&&b.right>innerWidth+1;}).slice(-16).map(e=>({tag:e.tagName,id:e.id,class:e.className,right:e.getBoundingClientRect().right,width:e.getBoundingClientRect().width}))));
+    check('Operation has no mobile horizontal overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await page.locator('.op-workspace').screenshot({path:dir+'/operation-mobile.png'});
+    await page.setViewportSize({width:320,height:740});
+    check('Operation fits a 320px screen',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+    await page.setViewportSize({width:1440,height:1000});
+    await page.emulateMedia({reducedMotion:'reduce'});
+    check('Operation reduced motion stops orbit animation',await page.locator('.op-orbit').first().evaluate(e=>getComputedStyle(e).animationName==='none'));
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    metricsFail=true;await page.locator('.op-refresh').click();
+    await page.waitForFunction(()=>document.querySelector('.op-status-dot')?.classList.contains('error'));
+    check('Operation data failure has an explicit error state',(await page.locator('.op-source').innerText()).includes('조회하지 못했습니다'));
+    metricsFail=false;
     // Drive integration: GIS and Drive responses are intercepted; no real Google consent or private files.
     const ROOT = '1rRp5lRjKKM3KSQo3JqfHZq1J54EpovDO';
     const driveRequests = [];
