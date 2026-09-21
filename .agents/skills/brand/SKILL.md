@@ -31,3 +31,7 @@ Use the user's requested paths and naming. If the project already has a brand fo
 - `assets/`: relevant official downloads and a short provenance note when assets are stored.
 
 Do not invent a rule to fill a gap. State the evidence boundary plainly, especially when a parent brand, campaign example, vendor portfolio, or press article is the only available source.
+
+## 산출물 생성 후 GitHub Push
+
+산출물을 새로 만들거나 수정하고 검증을 마치면 [산출물 GitHub Push 절차](../../../docs/guides/skill-output-git-push.md)를 읽고 따른다. 이번 작업의 산출물과 필요한 관련 파일만 커밋한 뒤 GitHub 작업 브랜치로 push하고, 원격 반영을 확인한 후 완료를 보고한다. 별도 push 승인을 반복해서 묻지 않는다. 파일 변경이 없는 탐색·제안만 수행했다면 빈 커밋을 만들지 않는다.
