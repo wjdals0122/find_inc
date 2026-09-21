@@ -1,0 +1,50 @@
+[
+  {
+    "file": "Toss_Logo_Primary.zip",
+    "url": "https://static.toss.im/assets/homepage/brand/2026-CI/Toss_Logo_Primary.zip",
+    "bytes": 2928575,
+    "sha256": "b9aeb3820f4a457afabfb7e914b71abfd1159b887a74bdb2dcc327cea6b3bd4f",
+    "matches_saved": true,
+    "zip_valid": true,
+    "entries": 12,
+    "verified_on": "2026-11-05",
+    "owner": "토스 / 비바리퍼블리카",
+    "rights": "공식 브랜드 사용 규칙 적용; 별도 상업적 재사용 허가 범위 미확인"
+  },
+  {
+    "file": "Toss_Symbol.zip",
+    "url": "https://static.toss.im/assets/homepage/brand/Toss_Symbol.zip",
+    "bytes": 8161102,
+    "sha256": "0f5a1354138c2feced60530ad0e8ddef0ba8541d2ab31b6cdc66e3746a213be4",
+    "matches_saved": true,
+    "zip_valid": true,
+    "entries": 17,
+    "verified_on": "2026-11-05",
+    "owner": "토스 / 비바리퍼블리카",
+    "rights": "공식 브랜드 사용 규칙 적용; 별도 상업적 재사용 허가 범위 미확인"
+  },
+  {
+    "file": "Toss.zip",
+    "url": "https://static.toss.im/assets/homepage/brand/2026-CI/Toss.zip",
+    "bytes": 14530560,
+    "sha256": "bbc9495eb938a6ad72dbd8cbf403c659009d92175270b2e3b09e28e40fbdd770",
+    "matches_saved": true,
+    "zip_valid": true,
+    "entries": 36,
+    "verified_on": "2026-11-05",
+    "owner": "토스 / 비바리퍼블리카",
+    "rights": "공식 브랜드 사용 규칙 적용; 별도 상업적 재사용 허가 범위 미확인"
+  },
+  {
+    "file": "Toss_Logo_Motion_Light_1920.mp4.zip",
+    "url": "https://static.toss.im/assets/homepage/brand/Toss_Logo_Motion_Light_1920.mp4.zip",
+    "bytes": 700090,
+    "sha256": "05cea06ff82fc5e01ad16a4a2d634518e516a2dfa7cfad94c2adcd3f872cd8a4",
+    "matches_saved": true,
+    "zip_valid": true,
+    "entries": 2,
+    "verified_on": "2026-11-05",
+    "owner": "토스 / 비바리퍼블리카",
+    "rights": "공식 브랜드 사용 규칙 적용; 별도 상업적 재사용 허가 범위 미확인"
+  }
+]
