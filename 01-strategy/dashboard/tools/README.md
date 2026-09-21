@@ -30,3 +30,5 @@ node 01-strategy/dashboard/tools/build-share-images.cjs
 Chromium이 없으면 테스트 폴더에서 `npx playwright install chromium`을 먼저 실행한다. 결과 이미지는 `assets/share/`에 저장된다. `tools/`와 `tests/`는 Firebase Hosting 배포에서 제외한다.
 
 공유 제목·설명·이미지 URL은 `dashboard.html`의 정적 `<head>`에 있어 로그인이나 JavaScript 실행 없이 읽을 수 있다. 이미지도 로그인 없이 HTTPS로 제공한다. 이미 공유한 링크의 카드가 갱신되지 않으면 해당 플랫폼의 미리보기 캐시를 갱신해야 할 수 있다.
+
+카카오톡에서 이전 주소의 캐시가 남을 때 사용할 별도 공유 주소는 `https://find-inc.web.app/share/light-v2/`다. 이 페이지는 새 공유 주소를 `og:url`로 사용하고 밝은 썸네일을 정적으로 제공한다. 브라우저에서 열면 기존 대시보드로 이동하고 로그인 절차를 그대로 따른다. 기존 주소의 카카오 캐시를 제거한 것은 아니며, 기존 채팅 메시지의 카드를 소급해서 수정하지 않는다. 원래 주소를 계속 공유하려면 [카카오톡 URL 메타정보 관리](https://developers.kakao.com/tool/debugger/sharing)에 로그인해 해당 주소의 공유 정보를 초기화한다.
