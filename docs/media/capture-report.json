@@ -1,0 +1,39 @@
+{
+  "kind": "real-http-rendered-ui-with-simulated-auth",
+  "screens": [
+    {
+      "file": "login-live.png",
+      "source": "https://find-inc.web.app/login.html",
+      "httpStatus": 200,
+      "simulation": false
+    },
+    {
+      "file": "strategy-simulation.png",
+      "source": "local HTTP dashboard.html",
+      "simulation": "Firebase Auth API fixture; existing strategy report data",
+      "title": "퓨리케어 공기청정기 | Marketing Studio"
+    },
+    {
+      "file": "operation-simulation.png",
+      "source": "local HTTP dashboard.html",
+      "simulation": "Authentication only; Operation uses its configured data source (no metric response interception)",
+      "visibleText": "AI NATIVE\nMARKETING STUDIO\nFIND.INC\n브랜드\n브랜드 선택\nLG전자\nBMW\n상품 선택\n퓨리케어 공기청정기\nAI 회의 주제\nAI 회의 열기\nVirtual Office\n검색\n⌘ K\n로그아웃\nStrategy\nContents\nOperation\nOperation\n\nOPERATION / CHANNEL INTELLIGENCE\n\n작은 움직임에서,\n다음 성장까지.\n\n채널마다 다른 신호를 한곳에서 읽으세요.\n수집된 숫자와 비어 있는 날짜까지, 있는 그대로.\n\n03 CHANNELS\nONE CONNECTED VIEW\nY\nI\nG\nFIND.\nIN MOTION\n+\n7일\n14일\n30일\n시작 날짜\n—\n종료 날짜\n적용\n↻\n새로고침\n이 사이트에 성과 조회 서버가 아직 연결되지 않았습니다.\nY\nYouTube\n↗\n저장 데이터 없음\n—\nI\nInstagram\n↗\n저장 데이터 없음\n—\nG\nSearch Console\n↗\n저장 데이터 없음\n—\n\nDAILY PERFORMANCE\n\nYouTube 날짜별 추이\n계정 선택\n연결된 저장 계정 없음\n조회수\n0/7일 제공\n—회\n\n기간 내 저장 데이터 없음\n\n아직 저장된 지표가 없습니다\n\n수집된 데이터가 들어오면 날짜별 추이가 표시됩니다.\n\n시청 시간\n0/7일 제공\n—분\n\n기간 내 저장 데이터 없음\n\n아직 저장된 지표가 없습니다\n\n수집된 데이터가 들어오면 날짜별 추이가 표시됩니다.\n\n수집 커버리지\n0 / 7일\n14\n15\n16\n17\n18\n19\n20\n\n저장 데이터 있음\n미제공\n\n미제공 날짜는 0으로 계산하지 않습니다.\n\nLAST COLLECTED\n\n수집 기록 없음\n\n지표 수집 시각 · 미국 태평양 시간\n\n새로고침은 저장 데이터 조회이며 채널 API 수집을 실행하지 않습니다.\n날짜별 원본 지표\n0개 저장 행\nFIND.INC / OPERATION\n2026-10-14 — 2026-10-20 · 서비스별 집계 시간대 적용\n스킬\n스킬 스튜디오"
+    },
+    {
+      "file": "mobile-web-simulation.png",
+      "source": "local HTTP dashboard.html",
+      "simulation": "Firebase authentication fixture; mobile web viewport 390x844"
+    },
+    {
+      "file": "office-simulation.png",
+      "source": "local HTTP virtual-office-preview.html",
+      "simulation": "Existing preview session fixtures; not real running agents"
+    }
+  ],
+  "limitations": [
+    "TLS certificate checks were disabled only in the capture browser because of certificate date errors.",
+    "No production user sign-in, remote skill execution or Flutter build was performed.",
+    "Mobile capture is responsive web, not a native Flutter screenshot."
+  ],
+  "errors": []
+}
