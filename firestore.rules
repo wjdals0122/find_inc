@@ -1,0 +1,40 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Completed meetings are immutable. The key is the owner's UID plus the
+    // meeting UUID. The client filters list queries by UID and requests a page.
+    match /meetings/{recordId} {
+      function isOwner(uid) {
+        return request.auth != null && request.auth.uid == uid;
+      }
+
+      function isValidMeeting(data) {
+        let fields = ['uid', 'meetingId', 'topic', 'departments', 'summary',
+                      'startedAt', 'endedAt', 'savedAt'];
+        return data.keys().hasAll(fields) && data.keys().hasOnly(fields)
+          && data.uid is string && data.uid.size() > 0 && data.uid.size() <= 128
+          && data.meetingId is string
+          && data.meetingId.matches('[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}')
+          && recordId == data.uid + '_' + data.meetingId
+          && data.topic is string && data.topic.size() > 0 && data.topic.size() <= 300
+          && data.departments is list && data.departments.size() > 0
+          && data.departments.size() == data.departments.toSet().size()
+          && data.departments.hasOnly(['전략팀', '콘텐츠팀', '운영팀'])
+          && data.summary is string && data.summary.size() > 0 && data.summary.size() <= 4000
+          && data.startedAt is timestamp && data.endedAt is timestamp
+          && data.startedAt <= data.endedAt
+          && data.endedAt <= request.time + duration.value(5, 'm')
+          && data.savedAt == request.time;
+      }
+
+      allow create: if isOwner(request.resource.data.uid) && isValidMeeting(request.resource.data);
+      allow get: if isOwner(resource.data.uid);
+      allow list: if isOwner(resource.data.uid) && request.query.limit <= 25;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

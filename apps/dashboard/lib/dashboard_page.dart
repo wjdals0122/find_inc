@@ -6,6 +6,7 @@ import 'strategy_page.dart';
 import 'contents_page.dart';
 import 'operation_page.dart';
 import 'happier/skills_page.dart';
+import 'meeting_history_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key, required this.auth});
@@ -95,6 +96,10 @@ class _DashboardPageState extends State<DashboardPage> {
           const OperationPage()
         else
           const SizedBox.shrink(),
+        if ((_menu == 3 ? widget.auth.currentUser : null) case final user?)
+          MeetingHistoryPage(key: ValueKey(user.uid), uid: user.uid)
+        else
+          const SizedBox.shrink(),
       ],
     ),
     bottomNavigationBar: NavigationBar(
@@ -124,6 +129,11 @@ class _DashboardPageState extends State<DashboardPage> {
           icon: Icon(Icons.bar_chart_outlined),
           selectedIcon: Icon(Icons.bar_chart),
           label: 'Operation',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.history_outlined),
+          selectedIcon: Icon(Icons.history),
+          label: '회의 기록',
         ),
       ],
     ),

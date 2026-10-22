@@ -7,7 +7,39 @@ const assert=require('node:assert/strict');
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  const base=process.env.OFFICE_BASE||'http://127.0.0.1:8000';
  try{
+  await page.route('**/auth-session.js',route=>route.fulfill({
+   contentType:'text/javascript',body:"export const getSession=async()=>({auth:{currentUser:{uid:'meeting-test'},app:{}}});"
+  }));
+  await page.route('**/firebase-firestore.js',route=>route.fulfill({
+   contentType:'text/javascript',body:`
+    export const getFirestore=()=>({});
+    export const doc=(_,collection,id)=>({collection,id});
+    export const serverTimestamp=()=>null;
+    export const setDoc=async(ref,data)=>{window.savedMeeting={ref,data};};
+    export const collection=(_,name)=>name;
+    export const where=(...args)=>args;
+    export const orderBy=(...args)=>args;
+    export const limit=value=>value;
+    export const query=(...args)=>args;
+    export const getDocsFromServer=async args=>{
+      window.meetingQuery=args;
+      return {size:1,docs:[{data:()=>({...window.savedMeeting.data,endedAt:{toDate:()=>window.savedMeeting.data.endedAt}})}]};
+    };`
+  }));
   await page.goto(base+'/virtual-office-preview.html');
+  // Use the sample transport with the authenticated history path and an isolated Firestore fixture.
+  await page.evaluate(()=>{
+   delete window.AI_MEETING_PREVIEW_OWNER;
+   const api=window.HappierCloud.api.bind(window.HappierCloud);
+   window.HappierCloud.api=async(...args)=>{
+    const meeting=await api(...args);
+    if(meeting.state==='completed'){
+     meeting.finishedAt=new Date().toISOString();
+     meeting.utterances.splice(-2,0,{id:'fixture:end',speaker:'me',text:'회의 종료 요청'});
+    }
+    return meeting;
+   };
+  });
   await page.locator('#aim-topic').waitFor();
   assert(await page.locator('.hero-actions #aim-launch').isVisible(),'topic input and AI 회의 열기 sit in the top bar');
   assert.equal((await page.locator('#aim-open').innerText()).trim(),'AI 회의 열기');
@@ -30,6 +62,21 @@ const assert=require('node:assert/strict');
   await page.locator('.aim-end').click();
   await page.waitForFunction(()=>document.querySelector('.aim-summary')?.textContent.includes('docs/meetings'),null,{timeout:20000});
   assert.equal((await page.locator('.aim-status strong').innerText()).trim(),'회의 종료');
+  await page.waitForFunction(()=>window.savedMeeting);
+  const saved=await page.evaluate(()=>window.savedMeeting);
+  assert.equal(saved.ref.collection,'meetings');
+  assert.equal(saved.ref.id,'meeting-test_'+saved.data.meetingId);
+  assert.equal(saved.data.uid,'meeting-test');
+  assert.match(saved.data.summary,/숏폼 우선/);
+  assert(!saved.data.summary.includes('docs/meetings'));
+  assert.deepEqual(saved.data.departments,['전략팀','콘텐츠팀','운영팀']);
+  await page.locator('.aim-history-open').click();
+  await page.locator('.aim-history-list summary').click();
+  assert.match(await page.locator('.aim-history-list p').innerText(),/숏폼 우선/);
+  assert.equal(await page.locator('.aim-history-list img').count(),0);
+  assert.deepEqual(await page.evaluate(()=>window.meetingQuery),
+    ['meetings',['uid','==','meeting-test'],['endedAt','desc'],25]);
+  await page.keyboard.press('Escape');
   await page.waitForFunction(()=>[...document.querySelectorAll('[data-actor] small')].filter(s=>s.textContent.startsWith('4F')).length<=1,null,{timeout:20000});
   assert(await page.locator('[data-actor="writer"] small').innerText().then(t=>t.startsWith('2F')),'agents return to their departments');
   assert(await page.locator('[data-actor="researcher"] small').innerText().then(t=>t.startsWith('3F')),'busy agents never left their work');

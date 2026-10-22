@@ -1,4 +1,5 @@
 import {getSession} from './auth-session.js';
+import {getDashboardFirestore} from './firestore-client.js';
 const dashboard = document.getElementById('studio-dashboard');
 const logout = document.getElementById('auth-logout');
 const status = document.getElementById('auth-dashboard-status');
@@ -39,6 +40,9 @@ try {
       logout.title = `${user.email || ''} 로그아웃`;
       window.dispatchEvent(new Event('resize'));
       window.dispatchEvent(new Event('studio-ready'));
+      void getDashboardFirestore().catch(error => {
+        console.warn('Firestore 초기화에 실패했습니다.', error.code || error.name);
+      });
     } catch {
       dashboard.hidden = false;
       dashboard.inert = false;

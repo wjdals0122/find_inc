@@ -45,10 +45,22 @@ body.vo-night .aim-launch{background:#263f4e;border-color:#405665}body.vo-night 
 .aim-start label{font-size:11px;color:var(--muted,#6b7280);display:flex;flex-direction:column;gap:4px}
 .aim-actions{display:flex;justify-content:space-between;gap:8px}
 .aim-send,.aim-primary{border:0;border-radius:10px;padding:10px 16px;background:var(--ink,#111827);color:var(--ground,#f9fafb);font-size:12px;font-weight:550;cursor:pointer}
-.aim-end{border:1px solid var(--line,#dce4df);border-radius:10px;padding:10px 14px;background:var(--panel,#fff);color:inherit;font-size:12px;cursor:pointer}
+.aim-end,.aim-history-button{border:1px solid var(--line,#dce4df);border-radius:10px;padding:10px 14px;background:var(--panel,#fff);color:inherit;font-size:12px;cursor:pointer}
 .aim-panel button:disabled{opacity:.45;cursor:not-allowed}
 .aim-panel button:focus-visible,.aim-panel a:focus-visible,.aim-launch button:focus-visible{outline:2px solid #3b997a;outline-offset:2px}
 .aim-foot{display:flex;justify-content:space-between;gap:8px;margin-top:12px;padding:10px 20px 14px;border-top:1px solid var(--line,#dce4df);font-size:10px;color:var(--muted,#6b7280)}
+.aim-foot{align-items:center}
+.aim-history-notice{margin:10px 20px 0;font-size:12px}
+.aim-history{box-sizing:border-box;width:min(520px,calc(100% - 32px));max-height:80dvh;padding:0 0 16px;border:1px solid var(--line,#dce4df);border-radius:16px;background:var(--panel,#fff);color:var(--ink,#253b3c)}
+.aim-history::backdrop{background:#14282380}
+.aim-history-status,.aim-history-actions{margin:8px 20px}
+.aim-history-status:empty{display:none}
+.aim-history-list{margin:0 20px;padding:0;list-style:none}
+.aim-history-list li{border-bottom:1px solid var(--line,#dce4df)}
+.aim-history-list summary{padding:12px 0;cursor:pointer;overflow-wrap:anywhere}
+.aim-history-list small{display:block;margin-top:4px;color:var(--muted,#52645d)}
+.aim-history-list p{margin:0 0 12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.aim-history :focus-visible{outline:2px solid #3b997a;outline-offset:2px}
 body.vo-night .aim-panel{--ground:#192d3c;--panel:#203948;--line:#314656;--ink:#d6e4df;--muted:#9cb4b6}
 @media(max-width:1150px){.aim-launch input{width:110px}}
 @media(max-width:760px){.aim-launch{padding:0;border:0;background:transparent}.aim-launch input{display:none}.aim-launch button{width:34px;height:34px;padding:0;justify-content:center;font-size:0;gap:0}.aim-launch button::before{display:none}.aim-launch button::after{content:'AI';font-size:11px;font-weight:650;letter-spacing:.02em}.aim-panel{right:8px;left:8px;bottom:8px;width:auto;max-height:calc(100dvh - 90px);border-radius:16px}}

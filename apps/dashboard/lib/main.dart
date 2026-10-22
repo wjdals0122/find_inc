@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -16,7 +17,10 @@ Future<void> main() async {
       'Happier protocol',
     ], await rootBundle.loadString('assets/happier/NOTICE.md'));
   });
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final app = await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseFirestore.instanceFor(app: app);
   runApp(const MyApp());
 }
 

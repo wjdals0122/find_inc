@@ -9,6 +9,10 @@
   let panel,meeting=null,state='idle',notice='',error='',pairing=null,models=[],model='',effort='',busy=false,draft='',topicDraft='',revision=0;
   let pollTimer,pairTimer,speakTimer,spoken=new Set(),queue=[];
   const storeKey=owner=>'find-ai-meeting:'+owner;
+  const pendingPrefix=uid=>storeKey(uid)+':history:';
+  const saving=new Map();
+  let historyDialog,historyNotice='',historyVersion=0;
+  const historyClient=()=>import('./meeting-history.js');
   async function owner(){
     if(window.AI_MEETING_PREVIEW_OWNER)return window.AI_MEETING_PREVIEW_OWNER;
     const {getSession}=await import('./auth-session.js');const {auth}=await getSession();
@@ -21,6 +25,102 @@
     finally{clearTimeout(timer);}
   }
   function remember(id){owner().then(o=>{try{id?sessionStorage.setItem(storeKey(o),id):sessionStorage.removeItem(storeKey(o));}catch{}}).catch(()=>{});}
+  function pendingHistory(uid){
+    try{
+      const prefix=pendingPrefix(uid);
+      return Object.keys(localStorage).filter(key=>key.startsWith(prefix)).map(key=>key.slice(prefix.length));
+    }catch{return [];}
+  }
+  function markHistory(uid,id,pending){
+    const key=pendingPrefix(uid)+id;
+    try{if(pending)localStorage.setItem(key,'1');else localStorage.removeItem(key);}catch{}
+  }
+  async function saveHistory(completed,uid){
+    const key=uid+'_'+completed.id;
+    if(saving.has(key))return saving.get(key);
+    markHistory(uid,completed.id,true);
+    const task=historyClient().then(client=>client.saveMeeting(uid,completed))
+      .then(()=>markHistory(uid,completed.id,false))
+      .finally(()=>saving.delete(key));
+    saving.set(key,task);
+    return task;
+  }
+  async function finishHistory(completed){
+    if(window.AI_MEETING_PREVIEW_OWNER){remember(null);return;}
+    const generation=revision;
+    try{
+      const uid=await owner();
+      if(generation!==revision)return;
+      const task=saveHistory(completed,uid);
+      try{
+        if(sessionStorage.getItem(storeKey(uid))===completed.id)sessionStorage.removeItem(storeKey(uid));
+      }catch{}
+      await task;
+      if(generation===revision){historyNotice='회의 기록을 저장했습니다.';draw();}
+    }catch{
+      if(generation===revision){historyNotice='회의 기록을 저장하지 못했습니다. 내 회의 기록에서 다시 시도할 수 있습니다.';draw();}
+    }
+  }
+  function retryHistory(uid,activeId){
+    return Promise.allSettled(pendingHistory(uid).filter(id=>id!==activeId).map(async id=>{
+      if(saving.has(uid+'_'+id))return saving.get(uid+'_'+id);
+      const record=await api('meetings/'+id,undefined,20000);
+      if(await owner()!==uid)throw Error('로그인 계정이 바뀌었습니다.');
+      if(record.state==='failed'){markHistory(uid,id,false);return;}
+      if(record.state==='completed')await saveHistory(record,uid);
+    }));
+  }
+  async function openHistory(){
+    if(!historyDialog){
+      historyDialog=document.createElement('dialog');
+      historyDialog.className='aim-history';
+      historyDialog.setAttribute('aria-labelledby','aim-history-title');
+      historyDialog.innerHTML='<header class="aim-head"><h2 id="aim-history-title">내 회의 기록</h2><button class="aim-close" type="button" aria-label="회의 기록 닫기">×</button></header><p class="aim-history-status" role="status"></p><ol class="aim-history-list"></ol><footer class="aim-history-actions"><button type="button" class="aim-history-button aim-history-retry" hidden>다시 시도</button><button type="button" class="aim-history-button aim-history-more" hidden>더 보기</button></footer>';
+      historyDialog.querySelector('.aim-close').onclick=()=>historyDialog.close();
+      historyDialog.addEventListener('close',()=>{historyVersion++;panel?.querySelector('.aim-history-open')?.focus();});
+      document.body.append(historyDialog);
+    }
+    if(!historyDialog.open)historyDialog.showModal();
+    const version=++historyVersion;
+    const status=historyDialog.querySelector('.aim-history-status');
+    const list=historyDialog.querySelector('.aim-history-list');
+    const retry=historyDialog.querySelector('.aim-history-retry');
+    const more=historyDialog.querySelector('.aim-history-more');
+    const current=()=>historyDialog.open&&version===historyVersion;
+    list.replaceChildren();retry.hidden=true;more.hidden=true;
+    if(window.AI_MEETING_PREVIEW_OWNER){status.textContent='미리보기에서는 회의 기록을 조회할 수 없습니다.';return;}
+    status.textContent='회의 기록을 불러오는 중…';
+    let cursor=null,uid,client;
+    retry.onclick=openHistory;
+    async function loadPage(){
+      more.disabled=true;
+      retry.hidden=true;
+      try{
+        const page=await client.listMeetings(uid,cursor);
+        if(!current())return;
+        list.insertAdjacentHTML('beforeend',page.entries.map(record=>{
+          const date=record.endedAt.toDate().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});
+          return `<li><details><summary>${esc(record.topic)}<small>${esc(date)} · ${esc(record.departments.join(' · '))}</small></summary><p>${esc(record.summary)}</p></details></li>`;
+        }).join(''));
+        cursor=page.next;more.hidden=!cursor;
+        if(!pendingHistory(uid).length)status.textContent=list.childElementCount?'':'저장된 회의가 없습니다.';
+      }catch{
+        if(current()){status.textContent='회의 기록을 불러오지 못했습니다.';retry.hidden=false;}
+      }finally{if(current())more.disabled=false;}
+    }
+    more.onclick=loadPage;
+    try{
+      uid=await owner();client=await historyClient();
+      const saves=await retryHistory(uid,meeting&&!FINAL.has(meeting.state)?meeting.id:null);
+      if(!current())return;
+      if(saves.some(result=>result.status==='rejected'))status.textContent='저장하지 못한 회의가 있습니다.';
+      else if(pendingHistory(uid).length)status.textContent='저장을 기다리는 회의가 있습니다.';
+      await loadPage();
+      if(current()&&pendingHistory(uid).length)retry.hidden=false;
+    }catch{
+      if(current()){status.textContent='회의 기록을 불러오지 못했습니다.';retry.hidden=false;}
+    }
+  }
   function mountLauncher(){
     const actions=document.querySelector('.hero-actions');if(!actions||document.getElementById('aim-launch'))return;
     const form=document.createElement('form');form.id='aim-launch';form.className='aim-launch';form.setAttribute('aria-label','AI 회의 시작');
@@ -48,12 +148,14 @@
       ${meeting?.state==='completed'&&meeting.summary?`<div class="aim-summary"><strong>팀장 정리 · 저장 결과</strong><p>${esc(meeting.summary)}</p></div>`:''}
       ${live?`<form class="aim-say"><label class="sr-only" for="aim-say">회의에 발언하기</label><textarea id="aim-say" rows="2" maxlength="2000" placeholder="대표로 의견을 말해보세요" ${meeting.ended||!meeting.sessionId?'disabled':''}>${esc(draft)}</textarea><div class="aim-actions"><button type="button" class="aim-end" ${meeting.ended||!meeting.sessionId||busy?'disabled':''}>회의 마치기</button><button type="submit" class="aim-send" ${meeting.ended||!meeting.sessionId||busy?'disabled':''}>보내기 ↗</button></div></form>`:
       `<form class="aim-start"><label for="aim-new-topic">회의 주제</label><input id="aim-new-topic" type="text" maxlength="300" required placeholder="예: 다음 달 신제품 런칭 채널 전략" value="${esc(topicDraft)}"><label for="aim-model">모델 <select id="aim-model" ${models.length?'':'disabled'}>${models.map(m=>`<option value="${esc(m.id)}" ${m.id===model?'selected':''}>${esc(m.label)}</option>`).join('')||'<option>연결 후 확인</option>'}</select></label><button type="submit" class="aim-primary" ${busy?'disabled':''}>${meeting?'새 회의 열기':'AI 회의 열기'} ↗</button></form>`}
-      <footer class="aim-foot"><span>말풍선 = 실제 Codex 회의 발언</span><span>정리본은 docs/meetings → main</span></footer>`;
+      ${historyNotice?`<p class="aim-history-notice" role="status">${esc(historyNotice)}</p>`:''}
+      <footer class="aim-foot"><button type="button" class="aim-history-button aim-history-open">내 회의 기록</button><span>정리본은 docs/meetings → main</span></footer>`;
     panel.querySelector('.aim-close').onclick=closePanel;
     panel.querySelector('.aim-refresh')?.addEventListener('click',()=>poll(true));
     panel.querySelector('.aim-start')?.addEventListener('submit',e=>{e.preventDefault();capture();if(topicDraft.trim())start(topicDraft.trim());});
     const say=panel.querySelector('.aim-say');if(say){say.onsubmit=e=>{e.preventDefault();send();};const ta=say.querySelector('textarea');ta.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();send();}};}
     panel.querySelector('.aim-end')?.addEventListener('click',end);
+    panel.querySelector('.aim-history-open').onclick=openHistory;
     const log=panel.querySelector('.aim-log');if(log)log.scrollTop=log.scrollHeight;
   }
   function setState(next,message=''){state=next;notice=message;draw();}
@@ -89,7 +191,11 @@
     if(!meeting)return;const generation=revision;clearTimeout(pollTimer);
     try{const next=await api('meetings/'+meeting.id,undefined,20000);if(generation!==revision)return;meeting=next;state=next.state;error='';notice='';
       stage(next.utterances||[]);
-      if(FINAL.has(next.state)){remember(null);if(next.state==='completed'){window.VirtualOffice?.aiMeeting?.say('lead','회의 정리를 마치고 docs/에 저장했습니다.');setTimeout(()=>window.VirtualOffice?.aiMeeting?.end(),6000);}}
+      if(next.state==='failed'){
+        remember(null);
+        owner().then(uid=>{if(generation===revision)markHistory(uid,next.id,false);}).catch(()=>{});
+      }
+      if(next.state==='completed'){void finishHistory(next);window.VirtualOffice?.aiMeeting?.say('lead','회의 정리를 마치고 docs/에 저장했습니다.');setTimeout(()=>window.VirtualOffice?.aiMeeting?.end(),6000);}
       draw();
     }catch(e){if(generation===revision){error=e.message;state='disconnected';draw();}}
     if(generation===revision&&meeting&&!FINAL.has(meeting.state))schedule(manual?3000:3500);
@@ -105,17 +211,29 @@
   }
   async function end(){
     if(!meeting||busy)return;busy=true;const generation=revision;
-    try{meeting=await api('meetings/'+meeting.id+'/end',{});if(generation!==revision)return;state=meeting.state;error='';window.VirtualOffice?.aiMeeting?.say('me','회의를 마치겠습니다. 팀장님 정리 부탁해요.');}
+    try{
+      const uid=await owner();
+      if(generation!==revision)return;
+      const finished=await api('meetings/'+meeting.id+'/end',{});
+      if(!window.AI_MEETING_PREVIEW_OWNER)markHistory(uid,finished.id,true);
+      if(generation!==revision)return;
+      meeting=finished;state=meeting.state;error='';window.VirtualOffice?.aiMeeting?.say('me','회의를 마치겠습니다. 팀장님 정리 부탁해요.');
+    }
     catch(e){if(generation===revision)error=e.message;}
     finally{if(generation===revision){busy=false;draw();schedule(3000);}}
   }
   async function resume(){
-    try{const o=await owner();let id=null;try{id=sessionStorage.getItem(storeKey(o));}catch{}if(!id)return;
-      const generation=revision;const m=await api('meetings/'+id,undefined,20000);if(generation!==revision||FINAL.has(m.state))return;
+    try{const generation=revision;const o=await owner();if(generation!==revision)return;
+      let id=null;try{id=sessionStorage.getItem(storeKey(o));}catch{}
+      if(!window.AI_MEETING_PREVIEW_OWNER)void retryHistory(o,id);
+      if(!id)return;
+      const m=await api('meetings/'+id,undefined,20000);if(generation!==revision)return;
+      if(m.state==='completed'){void finishHistory(m);return;}
+      if(m.state==='failed'){remember(null);markHistory(o,m.id,false);return;}
       meeting=m;state=m.state;(m.utterances||[]).forEach(u=>spoken.add(u.id));schedule(3000);
     }catch{}
   }
-  function reset(){revision++;clearTimeout(pollTimer);clearTimeout(pairTimer);clearTimeout(speakTimer);speakTimer=0;queue=[];spoken=new Set();meeting=null;pairing=null;state='idle';notice='';error='';busy=false;draft='';topicDraft='';models=[];model='';if(panel){panel.hidden=true;panel.innerHTML='';}document.body.classList.remove('aim-open');window.VirtualOffice?.aiMeeting?.end();}
+  function reset(){revision++;historyVersion++;historyDialog?.close();historyNotice='';clearTimeout(pollTimer);clearTimeout(pairTimer);clearTimeout(speakTimer);speakTimer=0;queue=[];spoken=new Set();meeting=null;pairing=null;state='idle';notice='';error='';busy=false;draft='';topicDraft='';models=[];model='';if(panel){panel.hidden=true;panel.innerHTML='';}document.body.classList.remove('aim-open');window.VirtualOffice?.aiMeeting?.end();}
   new MutationObserver(()=>{if(document.body.dataset.authState!=='authenticated')reset();else resume();}).observe(document.body,{attributes:true,attributeFilter:['data-auth-state']});
   mountLauncher();if(document.body.dataset.authState==='authenticated')resume();
   window.AIMeeting={open:openPanel,start,reset,get state(){return state;},get meeting(){return meeting;}};
