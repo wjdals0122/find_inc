@@ -31,7 +31,7 @@
 - 웹 대시보드: 조사 보고서 탐색, Drive 콘텐츠 조회, 성과 확인, 원격 작업 요청
 - Flutter 앱: 기존 대시보드의 주요 기능을 모바일 화면으로 제공
 - Happier: 실행 PC의 Codex와 연결해 앱과 웹에서 요청한 스킬 실행
-- 외부 서비스: Firebase 인증, Google Drive 파일 조회, Supabase 성과 데이터 조회
+- 외부 서비스: Firebase 로그인과 Firestore 회의 기록, Google Drive 파일 조회, Supabase 성과 데이터 조회
 
 ### 작업 규칙
 
@@ -94,6 +94,14 @@
 | Operation | 채널 성과 조회 | Supabase의 `channel_metrics` 직접 조회 |
 | 스킬 실행 | Happier 연결 후 원격 Codex 실행 | 암호화 연결 확인 후 실행과 결과 조회 |
 | 가상 오피스와 AI 회의 | 세션 표시와 회의 화면 | 미구현 |
+| 내 회의 기록 | AI 회의실에서 최신순 조회 | 하단 `회의 기록`에서 최신순 조회 |
+
+### AI 회의 기록
+
+- 웹에서 `AI 회의 열기`로 회의를 시작합니다. 팀장이 정리를 마치면 주제, 참여 부서, 요약, 시작·종료 시각과 사용자 UID를 Firestore의 `meetings`에 저장합니다.
+- 웹 회의실의 `내 회의 기록`과 Flutter 앱 하단의 `회의 기록`에서 같은 계정의 회의를 최신순으로 볼 수 있습니다.
+- Firestore 규칙은 로그인한 사용자가 자기 기록만 생성하고 조회하도록 제한합니다. Git 회의록은 기존대로 `docs/meetings/`에 저장합니다.
+[Firestore 규칙](firestore.rules) · [조회 인덱스](firestore.indexes.json)
 
 ### Happier 연결
 
@@ -148,6 +156,7 @@ flutter pub get
 | 서비스 | 연결 조건 |
 | --- | --- |
 | Firebase Auth | 등록된 이메일과 비밀번호 |
+| Cloud Firestore | 같은 Firebase 계정으로 본인 회의 기록 조회 |
 | Google Drive | 폴더 접근 권한이 있는 Google 계정으로 별도 승인 |
 | Supabase | 공개 읽기를 허용한 성과 테이블 조회 |
 | Happier | 온라인 상태의 실행 PC와 유효한 Codex 로그인 |
