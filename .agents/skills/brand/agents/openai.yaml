@@ -1,0 +1,4 @@
+interface:
+  display_name: "Brand Research"
+  short_description: "조사 근거와 에셋을 정리해 브랜드 문서를 작성"
+  default_prompt: "Use $brand to research this brand and update its sourced brand and design system documents."

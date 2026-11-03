@@ -1,0 +1,27 @@
+{
+  "logged_at": "2026-10-30T16:40:10+09:00",
+  "search_time_range": [
+    "2026-10-30T16:38:41+09:00",
+    "2026-10-30T16:40:10+09:00"
+  ],
+  "timestamp_precision": "session_interval",
+  "scope": "BMW Korea 공식 X5 G05 정보 및 공식 가격표/설명서 후보",
+  "queries": [
+    "site.bmw.co.kr X5",
+    "site:bmw.co.kr X5 2026 가격표 10월",
+    "site:bmw.co.kr X5 제원 50e 40i 30d",
+    "site:bmw.co.kr \"X5\" \"카탈로그\" \"2026\"",
+    "site:bmw.co.kr \"X5\" \"2026년 10월\" 가격",
+    "site:bmw.co.kr \"X5\" \"사용자 설명서\"",
+    "site:bmw.co.kr \"가격표\" \"2026년 9월\"",
+    "site:bmw.co.kr \"X5\" \"카탈로그 다운로드\"",
+    "site:press.bmwgroup.com/korea \"뉴 X5\" \"2023\" \"1억\"",
+    "site:bmw.co.kr \"X5\" filetype:pdf \"2026\" \"가격표\"",
+    "site:bmw.co.kr \"X5\" filetype:pdf \"옵션\""
+  ],
+  "notes": [
+    "검색 설명은 본문 확보로 세지 않음",
+    "9월 금융 프로모션 검색 결과를 10월 직접 본문으로 갱신해 저장",
+    "G65 및 45e 전기형 자료는 범위에서 제외"
+  ]
+}

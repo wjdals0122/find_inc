@@ -1,0 +1,74 @@
+[
+  {
+    "source_record_id": "bmw-g65",
+    "source_url": "https://www.bmw.co.kr/ko/all-models/x-series/suv/bmw-x5.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "locator": "국내 확정 가격·사양·출시일은 미확인. WLTP 표시는 국내 인증값과 구분.",
+    "original_text": "FAQ / 모델 제원 / 고지 / 디지털·PHEV",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false
+  },
+  {
+    "source_record_id": "bmw-service",
+    "source_url": "https://www.bmw.co.kr/ko/services/bmw-service-program/bmw-service-package.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "locator": "BMW 일반 안내이며 G65 개별 계약서 검증은 아님.",
+    "original_text": "BSI Premium / 일반 모델 Warranty",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false
+  },
+  {
+    "source_record_id": "edmunds-drive",
+    "source_url": "https://www.edmunds.com/car-news/2027-bmw-x5-ix5-first-drive-review.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "locator": "전문 기자 단기 시승. iX5 평가를 가솔린 X5 평가로 전용하지 않음.",
+    "original_text": "Hitting the pavement / A new era / Coming soon",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false
+  },
+  {
+    "source_record_id": "edmunds-hands",
+    "source_url": "https://www.edmunds.com/car-news/2027-bmw-x5-hands-on-first-look.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "locator": "정차 체험이며 주행 및 장기 소유 후기 아님.",
+    "original_text": "Good panoramic projection / Bad door handles / touchscreen",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false
+  },
+  {
+    "source_record_id": "edmunds-consumers",
+    "source_url": "https://www.edmunds.com/bmw/x5/2027/consumer-reviews/",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "locator": "후기 없음 표기 확인. 다른 연식 평점 제외. 가격은 미국 시장 참고.",
+    "original_text": "Consumer reviews / Pricing",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false
+  },
+  {
+    "source_record_id": "bmw-guide",
+    "source_url": "https://www.bmw.co.kr/ko/topics/owners/online-manual/bmw-driver-guide.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "locator": "G65 설명서 원문 미확보.",
+    "original_text": "페이지 메뉴만 반환",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false
+  },
+  {
+    "source_record_id": "bmw-ebrochure",
+    "source_url": "https://www.bmw.co.kr/ko/services/bmw-service-program/bsi-warranty-ebrochure.html",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "locator": "개별 모델 보증서 및 적용 조건 미확보.",
+    "original_text": "페이지",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false
+  },
+  {
+    "source_record_id": "reddit-press",
+    "source_url": "https://www.reddit.com/r/BMWX5/comments/1xg0e1v/i_have_the_new_x5_for_this_entire_week_press_just/",
+    "collected_at": "2026-10-30T08:03:45Z",
+    "locator": "정확한 게시 시각 불명; 상대 시각을 환산하지 않음. 장기 평가 미확보. 댓글 원문을 저장하거나 장단점 집계하지 않음.",
+    "original_text": "게시물 제목",
+    "text_kind": "verbatim_excerpt",
+    "full_text_preserved": false
+  }
+]

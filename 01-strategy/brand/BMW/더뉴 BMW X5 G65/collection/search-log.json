@@ -1,0 +1,10 @@
+{
+  "logged_at": "2026-10-30T08:03:45Z",
+  "queries": [
+    "site:auto.danawa.com \"X5\" \"G65\"",
+    "site:search.shopping.naver.com \"BMW\" \"G65\"",
+    "site:cars.com \"X5\" \"2027\" \"consumer\"",
+    "site:edmunds.com \"X5\" \"2027\" review"
+  ],
+  "note": "현재 작업의 검색어. 최초 시각은 started_at~finished_at 범위; 검색 결과만으로 본문 검증으로 세지 않음."
+}

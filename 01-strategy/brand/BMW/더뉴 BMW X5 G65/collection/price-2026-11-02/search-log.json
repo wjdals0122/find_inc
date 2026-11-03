@@ -1,0 +1,15 @@
+{
+  "searched_at": "2026-11-02T09:53:45+09:00",
+  "collector": "web.run",
+  "scope": "G65 news official prices KR US",
+  "queries": [
+    "BMW X5 G65 2027 price 69800 72500 2026",
+    "BMW X5 G65 가격 예상 2026 신형",
+    "\"G65\" \"가격\" \"1억\"",
+    "\"BMW X5\" \"1억3,200\" 2027",
+    "\"G65\" \"예상 가격\" 한국 2026",
+    "\"BMW\" \"가격표\" \"10월\" \"2026\" X5",
+    "2026 BMW X5 xDrive40i \"$69,900\" 50e \"$75,200\""
+  ],
+  "search_results_used_as_body_evidence": false
+}
