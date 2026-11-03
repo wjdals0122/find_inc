@@ -1,0 +1,14 @@
+[
+  {
+    "file": "BMW_light.svg",
+    "source": "https://www.bmwgroup.com/etc.clientlibs/grpw-web/clientlibs/grpw-base/resources/images/logo/BMW_light.svg",
+    "retrieved": "2026-11-03",
+    "sha256": "8cd81000c450d260a1adab2f587c0540ecf2cc14c17b97609ceae4f9e460828c"
+  },
+  {
+    "file": "BMW_dark.svg",
+    "source": "https://www.bmwgroup.com/etc.clientlibs/grpw-web/clientlibs/grpw-base/resources/images/logo/BMW_dark.svg",
+    "retrieved": "2026-11-03",
+    "sha256": "af80535ee5f17ebe6565a9003b94ad6ae5517b05432743e91275f7a17eb3a6ab"
+  }
+]
