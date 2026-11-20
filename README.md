@@ -9,7 +9,6 @@
 실제 HTML과 JavaScript를 HTTP 서버에서 실행한 화면
 ### 로그인
 
-Firebase Hosting에서 제공하는 로그인 화면을 캡처했습니다. 실제 계정으로 로그인하지 않았으며 인증서 날짜 오류 때문에 캡처용 브라우저에서만 인증서 검사를 생략했습니다.
 
 ![서버에서 연 로그인 화면](docs/media/login-live.png)
 
